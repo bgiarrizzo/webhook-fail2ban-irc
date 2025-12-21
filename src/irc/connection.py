@@ -158,6 +158,9 @@ class IrcConnection:
 
     def loop(self):
         self.connect_server()
+
+        self.send_message(f"{self.nick} is now online !")
+
         while not self.quit_loop:
             try:
                 to_read, _, _ = select.select([self.connection], [], [], 1)

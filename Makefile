@@ -4,6 +4,10 @@ VENV_PATH := $(shell pwd)/$(VENV_FOLDER)
 VENV_BIN := $(VENV_PATH)/bin
 PYTHON := $(VENV_BIN)/python
 PACKAGER := uv
+PROJECT_NAME := "webhook-fail2ban-irc"
+PROJECT_PORT_SRC := 8001
+PROJECT_PORT_DST := 8000
+IRC_CHANNEL := "fail2ban"
 
 help:
 	@grep -E '(^[a-zA-Z0-9_-]+:.*?##)|(^##)' $(firstword $(MAKEFILE_LIST)) | awk 'BEGIN {FS = ":.*?## "; printf "Usage: make \033[32m<target>\033[0m\n"}{printf "\033[32m%-20s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m## /\n[33m/'
@@ -44,3 +48,15 @@ venv: create_venv ## Load virtual environment
 
 serve: venv install ## Run a local server
 	. $(VENV_BIN)/activate; $(PYTHON) src/main.py
+
+build: 
+	docker rm -f $(PROJECT_NAME) || true
+	docker rmi $(PROJECT_NAME) || true
+	docker system prune -f
+	docker build -t $(PROJECT_NAME) -f docker/Dockerfile .
+
+run: build
+	docker rm -f $(PROJECT_NAME) || true
+	docker run -d --name $(PROJECT_NAME) -p $(PROJECT_PORT_SRC):$(PROJECT_PORT_DST) -e "TZ=Europe/Paris" -e "IRC_SERVER=192.168.1.17" -e "IRC_CHANNEL=#$(IRC_CHANNEL)" $(PROJECT_NAME)
+
+

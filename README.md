@@ -1,27 +1,47 @@
-# webhooks2irc
+# webhook-irc-relay
 
-💧 A project built with the Vapor web framework.
+Swift/Vapor webhook relay that normalizes incoming events and forwards them to IRC channels.
 
-## Getting Started
+## What it does
+- Receives POST webhooks at /webhooks/:source.
 
-To build the project using the Swift Package Manager, run the following command in the terminal from the root of the project:
+- Normalizes payloads into a common domain event shape.
+- Routes each source to a specific IRC channel.
+- Sends formatted PRIVMSG lines over a persistent IRC TCP connection.
+- Publishes API docs with OpenAPI at /openapi.json and Swagger UI at /swagger.
+
+Swagger/OpenAPI exposure policy:
+- Disabled by default in production.
+- Enabled by default outside production.
+- Can be overridden with SWAGGER_ENABLED.
+
+## Supported sources
+- bazarr
+- radarr
+- sonarr
+- lidarr
+- prowlarr
+- fail2ban
+
+## Quick start
+1. Export environment variables described in docs/SETUP.md.
+2. Build:
 ```bash
 swift build
 ```
-
-To run the project and start the server, use the following command:
+3. Run:
 ```bash
 swift run
 ```
-
-To execute tests, use the following command:
+4. Test:
 ```bash
 swift test
 ```
 
-### See more
-
-- [Vapor Website](https://vapor.codes)
-- [Vapor Documentation](https://docs.vapor.codes)
-- [Vapor GitHub](https://github.com/vapor)
-- [Vapor Community](https://github.com/vapor-community)
+## Documentation
+- docs/APP.md
+- docs/ARCHITECTURE.md
+- docs/FEATURES.md
+- docs/SETUP.md
+- docs/STACK.md
+- docs/ADR/

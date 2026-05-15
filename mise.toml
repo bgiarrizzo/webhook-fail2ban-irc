@@ -2,7 +2,7 @@
 # description: Configuration file for Mise, a task runner for Swift projects
 # creation_date: 2024-05-05
 # update_date: 2024-05-05
-# documentation: 
+# documentation:
 
 [tasks.help]
 description = "List available project tasks"
@@ -19,7 +19,7 @@ run = "pre-commit run --all-files"
 
 [tasks.test]
 depends = ["setup_precommit"]
-description = "Run unit tests"src
+description = "Run unit tests"
 run = "cd src && swift test"
 
 [tasks.docker_build]

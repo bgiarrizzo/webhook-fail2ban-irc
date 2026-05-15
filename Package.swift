@@ -4,13 +4,15 @@ import PackageDescription
 let package = Package(
     name: "webhooks2irc",
     platforms: [
-       .macOS(.v13)
+        .macOS(.v13)
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.115.0"),
         // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
+        // 📘 OpenAPI bindings for Vapor.
+        .package(url: "https://github.com/vapor/swift-openapi-vapor.git", from: "1.0.1"),
     ],
     targets: [
         .executableTarget(
@@ -19,7 +21,21 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
+                .product(name: "NIOHTTP1", package: "swift-nio"),
+                .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
             ],
+            path: "src",
+            exclude: [
+                "Sources",
+                "webhooks2ircTests",
+                "Public",
+                "Infrastructure/Handlers/bazarr.py",
+                "Infrastructure/Handlers/lidarr.py",
+                "Infrastructure/Handlers/prowlarr.py",
+                "Infrastructure/Handlers/radarr.py",
+                "Infrastructure/Handlers/sonarr.py",
+            ],
+            sources: ["App", "Domain", "Application", "Infrastructure", "Shared"],
             swiftSettings: swiftSettings
         ),
         .testTarget(
@@ -28,11 +44,14 @@ let package = Package(
                 .target(name: "webhooks2irc"),
                 .product(name: "VaporTesting", package: "vapor"),
             ],
+            path: "tests",
             swiftSettings: swiftSettings
-        )
+        ),
     ]
 )
 
-var swiftSettings: [SwiftSetting] { [
-    .enableUpcomingFeature("ExistentialAny"),
-] }
+var swiftSettings: [SwiftSetting] {
+    [
+        .enableUpcomingFeature("ExistentialAny")
+    ]
+}

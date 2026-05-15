@@ -1,0 +1,146 @@
+# filename: .pre-commit-config.yaml
+# description: pre-commit configuration file to define hooks for code quality and consistency checks before committing
+# creation_date: 2024-05-05
+# update_date: 2024-05-05
+# documentation: https://pre-commit.com
+
+# -----------------------------------------------------------------------------
+# PreCommit configuration file
+# This file defines the pre-commit hooks that will be run before each commit.
+# For more information on configuring pre-commit, see:
+# https://pre-commit.com/#config-file
+# -----------------------------------------------------------------------------
+
+repos:
+  # ----------------------------------------------------------------------------
+  # Pre-commit hooks from the official repository
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Remove trailing whitespace
+      - id: check-yaml
+        name: Check YAML files
+      - id: check-toml
+        name: Check TOML Files
+      - id: check-xml
+        name: Check XML Files
+      - id: check-added-large-files
+        name: Check for added large files
+      - id: check-case-conflict
+        name: Check for case conflicts
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: detect-private-key
+        name: Detect private keys
+      - id: end-of-file-fixer
+        name: Ensure file ends with a newline
+      - id: check-executables-have-shebangs
+        name: Ensure executable files have shebangs
+  # ----------------------------------------------------------------------------
+  # EditorConfig Check Hooks
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 3.6.1
+    hooks:
+      - id: editorconfig-checker
+        alias: ec
+        name: Check EditorConfig Compliance
+  # ----------------------------------------------------------------------------
+  # Shell Lint hooks from ShellCheck-py
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        name: Lint shell scripts
+  # ----------------------------------------------------------------------------
+  # Shell Format hooks from SCOP (Ville Skyttä)
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.13.1-1
+    hooks:
+      - id: shfmt
+        name: Format shell scripts
+  # ----------------------------------------------------------------------------
+  # Python Lint hooks from Ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.12
+    hooks:
+      - id: ruff-check
+        name: Lint Python Files with Ruff
+      - id: ruff-format
+        name: Format Python Files with Ruff
+  # ----------------------------------------------------------------------------
+  # Lua Format hooks from JohnnyMorganz/StyLua
+  - repo: https://github.com/JohnnyMorganz/StyLua
+    rev: v2.4.1
+    hooks:
+      - id: stylua
+        name: Format Lua Files with StyLua
+  # ----------------------------------------------------------------------------
+  # Lua Format hooks from Koihik/LuaFormatter
+  - repo: https://github.com/Koihik/LuaFormatter
+    rev: 1.3.6
+    hooks:
+      - id: luaformatter
+        name: Format Lua Files with LuaFormatter
+  # ----------------------------------------------------------------------------
+  # JSON Format and Lint hooks from google/go-jsonnet
+  - repo: https://github.com/google/go-jsonnet
+    rev: v0.22.0
+    hooks:
+      - id: jsonnet-format
+        name: Format JSON Files
+      - id: jsonnet-lint
+        name: Lint JSON Files
+  # ----------------------------------------------------------------------------
+  # YAML Lint
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        name: Lint YAML Files
+  # ----------------------------------------------------------------------------
+  # YAML Format hooks from google/yamlfmt
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt
+        name: Format YAML Files
+  # ----------------------------------------------------------------------------
+  # Markdown Lint hooks from markdownlint/markdownlint
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.22.1
+    hooks:
+      - id: markdownlint-cli2
+        name: Lint Markdown Files with markdownlint-cli2
+  # ----------------------------------------------------------------------------
+  # Markdown Format hooks from
+  - repo: https://github.com/hukkin/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        name: Format Markdown Files with mdformat
+  # ----------------------------------------------------------------------------
+  # Swift Lint & Format hooks from Nick Lockwood's SwiftFormat
+  - repo: https://github.com/nicklockwood/SwiftFormat
+    rev: 0.61.1
+    hooks:
+      - id: swift-format-lint
+        name: Lint Swift Files with SwiftFormat
+        entry: swift-format lint --strict --recursive --parallel --configuration .swiftformat.json
+      - id: swift-format
+        name: Format Swift Files with SwiftFormat
+        entry: swift-format format --in-place --recursive --parallel --configuration .swiftformat.json
+  # ----------------------------------------------------------------------------
+  # Secret Leaks hooks for detecting secrets with Gitleaks
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        name: Gitleaks - Detect Secrets in Codebase
+  # ----------------------------------------------------------------------------
+  # Secret Leaks hooks for detecting secrets with Talisman
+  - repo: https://github.com/thoughtworks/talisman
+    rev: v1.37.0
+    hooks:
+      - id: talisman-commit
+        name: Talisman - Detect Secrets in Codebase

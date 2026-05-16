@@ -115,8 +115,8 @@ struct WebhookRouteTests {
         }
     }
 
-    @Test("Rejects webhook with invalid token")
-    func rejectsInvalidToken() async throws {
+    @Test("Accepts webhook even with a token header")
+    func acceptsWebhookWithTokenHeader() async throws {
         let mockClient = MockIRCClient()
 
         try await withApp(configure: { app in
@@ -135,8 +135,12 @@ struct WebhookRouteTests {
                         string: "{\"type\":\"ban\",\"ip\":\"203.0.113.10\",\"jail\":\"sshd\"}")
                 },
                 afterResponse: { response async in
-                    #expect(response.status == .unauthorized)
+                    #expect(response.status == .ok)
                 })
+
+            let messages = await mockClient.capturedMessages()
+            #expect(messages.count == 1)
+            #expect(messages.first?.channel.rawValue == "#sysops")
         }
     }
 
@@ -200,14 +204,6 @@ private func integrationTestConfiguration(swaggerEnabled: Bool = true) -> AppCon
             "lidarr": IRCChannel(rawValue: "#seedbox"),
             "prowlarr": IRCChannel(rawValue: "#seedbox"),
             "fail2ban": IRCChannel(rawValue: "#sysops"),
-        ],
-        webhookTokens: [
-            "bazarr": "bazarr-token",
-            "radarr": "radarr-token",
-            "sonarr": "sonarr-token",
-            "lidarr": "lidarr-token",
-            "prowlarr": "prowlarr-token",
-            "fail2ban": "secret-token",
         ],
         swaggerEnabled: swaggerEnabled
     )

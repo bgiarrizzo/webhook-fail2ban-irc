@@ -23,9 +23,7 @@
 - Fail2ban: [Fail2ban] IP bannie : {ip} (jail: {jail})
 
 ## Security behavior
-- Source token validation via X-Webhook-Token.
 - Source unknown returns 404.
-- Missing or invalid token returns 401.
 - Invalid JSON payload returns 400.
 
 ## Message safety

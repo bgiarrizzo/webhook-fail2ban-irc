@@ -15,7 +15,6 @@ webhook-irc-relay receives HTTP webhooks from external systems, normalizes them,
 
 ## Inputs and outputs
 - Input: POST /webhooks/:source with JSON body.
-- Auth: X-Webhook-Token header per source.
 - Output: IRC PRIVMSG sent to the mapped channel.
 
 ## Extensibility model

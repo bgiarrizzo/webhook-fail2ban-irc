@@ -13,12 +13,11 @@
 
 ## Request flow
 1. POST /webhooks/:source enters Vapor routing.
-2. WebhookAuthMiddleware validates source token.
-3. ProcessWebhookUseCase delegates to WebhookDispatcher.
-4. HandlerRegistry resolves a source handler.
-5. Handler decodes payload into WebhookEvent.
-6. IRCChannelRouter resolves target channel.
-7. IRCClient sends PRIVMSG to IRC.
+2. ProcessWebhookUseCase delegates to WebhookDispatcher.
+3. HandlerRegistry resolves a source handler.
+4. Handler decodes payload into WebhookEvent.
+5. IRCChannelRouter resolves target channel.
+6. IRCClient sends PRIVMSG to IRC.
 
 ## API documentation endpoints
 - GET /openapi.json serves the OpenAPI document used by clients and tooling.
@@ -28,7 +27,6 @@
 ## Error mapping
 - unknownSource -> HTTP 404
 - invalidPayload -> HTTP 400
-- invalid token -> HTTP 401
 - IRC transport unavailable -> HTTP 503
 
 ## Runtime resilience

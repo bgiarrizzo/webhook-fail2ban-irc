@@ -27,13 +27,7 @@ let package = Package(
             path: "src",
             exclude: [
                 "Sources",
-                "webhooks2ircTests",
                 "Public",
-                "Infrastructure/Handlers/bazarr.py",
-                "Infrastructure/Handlers/lidarr.py",
-                "Infrastructure/Handlers/prowlarr.py",
-                "Infrastructure/Handlers/radarr.py",
-                "Infrastructure/Handlers/sonarr.py",
             ],
             sources: ["App", "Domain", "Application", "Infrastructure", "Shared"],
             swiftSettings: swiftSettings
@@ -44,7 +38,7 @@ let package = Package(
                 .target(name: "webhooks2irc"),
                 .product(name: "VaporTesting", package: "vapor"),
             ],
-            path: "tests",
+            path: "src/Tests",
             swiftSettings: swiftSettings
         ),
     ]

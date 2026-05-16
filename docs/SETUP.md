@@ -36,6 +36,9 @@ Default behavior:
 ## Run tests
 1. swift test
 
+Integration tests use `VaporTesting` helpers that configure the app through an explicit async closure, so fixtures can inject IRC and configuration overrides without starting a real IRC connection.
+The basic app test also uses a mocked IRC client and asserts the real root route response returned by `src/App/routes.swift`.
+
 ## Example request
 curl -X POST http://127.0.0.1:8080/webhooks/fail2ban \
   -H 'Content-Type: application/json' \

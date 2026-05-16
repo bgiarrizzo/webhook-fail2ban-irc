@@ -1,13 +1,16 @@
+# syntax=docker/dockerfile:1.7
+
 # ================================
 # Build image
 # ================================
 FROM swift:6.3-bookworm AS build
 
-# Install OS updates
-RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    && apt-get -q update \
-    && apt-get -q dist-upgrade -y \
-    && apt-get install -y libjemalloc-dev
+# Install only build dependencies (no dist-upgrade for faster, reproducible builds)
+ARG DEBIAN_FRONTEND=noninteractive
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get -q update \
+    && apt-get install -y --no-install-recommends libjemalloc-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set up a build area
 WORKDIR /build
@@ -17,25 +20,31 @@ WORKDIR /build
 # as long as your Package.swift/Package.resolved
 # files do not change.
 COPY ./Package.* ./
-RUN swift package resolve \
+RUN --mount=type=cache,target=/root/.cache/org.swift.swiftpm \
+    --mount=type=cache,target=/build/.swiftpm \
+    swift package resolve \
     $([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)
 
-# Copy entire repo into container
-COPY . .
+# Copy only sources required for compilation to avoid cache invalidation on docs/tests changes
+COPY ./src ./src
 
 RUN mkdir /staging
 
 # Build the application, with optimizations, with static linking, and using jemalloc
 # N.B.: The static version of jemalloc is incompatible with the static Swift runtime.
 RUN --mount=type=cache,target=/build/.build \
+    --mount=type=cache,target=/root/.cache/org.swift.swiftpm \
+    --mount=type=cache,target=/build/.swiftpm \
     swift build -c release \
     --product webhooks2irc \
     --static-swift-stdlib \
     -Xlinker -ljemalloc && \
+    strip .build/release/webhooks2irc && \
+    BIN_PATH="$(swift build -c release --show-bin-path)" && \
     # Copy main executable to staging area
-    cp "$(swift build -c release --show-bin-path)/webhooks2irc" /staging && \
+    cp "$BIN_PATH/webhooks2irc" /staging && \
     # Copy resources bundled by SPM to staging area
-    find -L "$(swift build -c release --show-bin-path)" -regex '.*\.resources$' -exec cp -Ra {} /staging \;
+    find -L "$BIN_PATH" -regex '.*\.resources$' -exec cp -Ra {} /staging \;
 
 
 # Switch to the staging area
@@ -54,11 +63,12 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 FROM debian:bookworm-slim
 
-# Make sure all system packages are up to date, and install only essential packages.
-RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    && apt-get -q update \
-    && apt-get -q dist-upgrade -y \
+# Install only runtime dependencies (no dist-upgrade for smaller layers)
+ARG DEBIAN_FRONTEND=noninteractive
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get -q update \
     && apt-get -q install -y \
+    --no-install-recommends \
     libjemalloc2 \
     ca-certificates \
     tzdata \

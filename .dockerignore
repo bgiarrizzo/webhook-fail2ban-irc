@@ -4,6 +4,17 @@
 # update_date: 2024-05-15
 # documentation: https://docs.docker.com/build/concepts/context/#dockerignore-files
 
+# Docker build context optimizations
+.git/
+.gitignore
+docs/
+src/Tests/
+AGENTS.md
+README.md
+docker-compose.yml
+prepare_repo.sh
+mise.toml
+
 # Created by https://www.toptal.com/developers/gitignore/api/go,vim,rust,swift,vapor,xcode,python,swiftpm,visualstudiocode,swiftpackagemanager,lua
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,vim,rust,swift,vapor,xcode,python,swiftpm,visualstudiocode,swiftpackagemanager,lua
 

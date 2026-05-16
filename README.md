@@ -38,6 +38,22 @@ swift run
 swift test
 ```
 
+## Docker
+- Build image:
+```bash
+docker build -f docker/Dockerfile -t webhooks-irc:latest .
+```
+- Run image:
+```bash
+docker run --rm -p 8080:8080 \
+	-e IRC_HOST=irc.example.net \
+	-e IRC_PORT=6667 \
+	-e IRC_NICK=webhooks-bot \
+	webhooks-irc:latest
+```
+
+The Docker build is optimized to reduce rebuild time by caching SwiftPM resolution/build artifacts and by copying only Swift sources needed for compilation.
+
 ## Documentation
 - docs/APP.md
 - docs/ARCHITECTURE.md

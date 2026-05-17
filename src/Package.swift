@@ -24,8 +24,7 @@ let package = Package(
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
             ],
-            path: "Application",
-            exclude: [],
+            path: ".",
             sources: ["App", "Domain", "Application", "Infrastructure", "Shared"],
             swiftSettings: swiftSettings
         ),
@@ -35,7 +34,6 @@ let package = Package(
                 .target(name: "webhooks2irc"),
                 .product(name: "VaporTesting", package: "vapor"),
             ],
-            path: "Tests",
             swiftSettings: swiftSettings
         ),
     ]

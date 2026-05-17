@@ -111,6 +111,15 @@ public actor IRCClient: IRCClientProtocol {
         for channel in channels {
             try await sendRaw("JOIN \(channel.rawValue)")
         }
+
+        try await announcePresence()
+    }
+
+    private func announcePresence() async throws {
+        let announcement = "🤖 Bot is up & running!"
+        for channel in channels {
+            try await sendRaw("PRIVMSG \(channel.rawValue) :\(announcement)")
+        }
     }
 
     private func sendRaw(_ line: String) async throws {

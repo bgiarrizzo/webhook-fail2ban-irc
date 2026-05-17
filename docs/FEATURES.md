@@ -1,5 +1,10 @@
 # FEATURES
 
+## Bot lifecycle
+- On startup, the bot joins all configured IRC channels.
+- Immediately after joining, it announces its presence with a status message in each channel (e.g., "🤖 Bot is up & running!").
+- The bot's nick automatically appears in the channel nicklist once joined.
+
 ## Supported webhook sources
 - bazarr -> #seedbox
 - radarr -> #seedbox

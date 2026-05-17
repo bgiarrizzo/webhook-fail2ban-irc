@@ -19,6 +19,26 @@
             "target": "webhooks2irc",
             "configuration": "release",
             "preLaunchTask": "swift: Build Release webhooks2irc"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:webhook-fail2ban-irc}/src",
+            "name": "Debug webhooks2irc (src)",
+            "target": "webhooks2irc",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug webhooks2irc (src)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:webhook-fail2ban-irc}/src",
+            "name": "Release webhooks2irc (src)",
+            "target": "webhooks2irc",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release webhooks2irc (src)"
         }
     ]
 }

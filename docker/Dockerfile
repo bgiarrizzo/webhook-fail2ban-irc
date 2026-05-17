@@ -19,7 +19,7 @@ WORKDIR /build
 # This creates a cached layer that can be reused
 # as long as your Package.swift/Package.resolved
 # files do not change.
-COPY ./Package.* ./
+COPY ./src/Package.* ./
 RUN --mount=type=cache,target=/root/.cache/org.swift.swiftpm \
     --mount=type=cache,target=/build/.swiftpm \
     swift package resolve \

@@ -31,5 +31,7 @@
 
 ## Runtime resilience
 - IRCClient keeps a persistent TCP connection.
+- During initialization, it performs a handshake (NICK, USER, JOIN for each channel).
+- After joining all channels, it announces presence with a message in each channel.
 - On disconnect, it reconnects automatically.
 - When disconnected, outbound messages are buffered in a memory queue and flushed after reconnect.

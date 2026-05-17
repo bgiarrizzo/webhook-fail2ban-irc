@@ -4,9 +4,9 @@ Swift/Vapor webhook relay that normalizes incoming events and forwards them to I
 
 ## What it does
 - Receives POST webhooks at /webhooks/:source.
-
 - Normalizes payloads into a common domain event shape.
 - Routes each source to a specific IRC channel.
+- Joins configured IRC channels and announces presence with a startup message.
 - Sends formatted PRIVMSG lines over a persistent IRC TCP connection.
 - Publishes API docs with OpenAPI at /openapi.json and Swagger UI at /swagger.
 

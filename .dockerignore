@@ -8,7 +8,6 @@
 .git/
 .gitignore
 docs/
-src/Tests/
 AGENTS.md
 README.md
 docker-compose.yml

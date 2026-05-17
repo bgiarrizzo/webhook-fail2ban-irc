@@ -1,0 +1,27 @@
+# filename: mise.toml
+# description: Configuration file for Mise, a task runner for Swift projects
+# creation_date: 2024-05-05
+# update_date: 2024-05-05
+# documentation:
+
+[tasks.help]
+description = "List available project tasks"
+run = "mise tasks ls"
+
+[tasks.setup_precommit]
+description = "Setup pre-commit hooks"
+run = "pre-commit install"
+
+[tasks.precommit]
+depends = ["setup_precommit"]
+description = "Run pre-commit hooks on all files"
+run = "pre-commit run --all-files"
+
+[tasks.test]
+depends = ["setup_precommit"]
+description = "Run unit tests"
+run = "cd src && swift test"
+
+[tasks.image_build]
+description = "Build Docker/Podman image"
+run = "if command -v docker >/dev/null 2>&1; then docker build -t $(basename $(pwd)):dev -f docker/Dockerfile .; elif command -v podman >/dev/null 2>&1; then podman build -t $(basename $(pwd)):dev -f docker/Dockerfile .; else echo 'Neither Docker nor Podman is installed.'; fi"

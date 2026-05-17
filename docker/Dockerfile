@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/root/.cache/org.swift.swiftpm \
     $([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)
 
 # Copy only sources required for compilation to avoid cache invalidation on docs/tests changes
-COPY ./src ./src
+COPY ./src .
 
 RUN mkdir /staging
 

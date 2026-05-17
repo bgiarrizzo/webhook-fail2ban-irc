@@ -31,16 +31,17 @@ You are a Senior Server-Side Swift Engineer specialized in Vapor, APIs, persiste
 .
 ├── docs/
 ├── src/
-│   ├── App/
-│   ├── Domain/
 │   ├── Application/
-│   ├── Infrastructure/
-│   └── Shared/
-├── tests/
-│   ├── Unit/
-│   ├── Integration/
-│   └── Helpers/
-├── Package.swift
+│   │   ├── App/
+│   │   ├── Domain/
+│   │   ├── Application/
+│   │   ├── Infrastructure/
+│   │   └── Shared/
+│   ├── Tests/
+│   │   ├── Unit/
+│   │   ├── Integration/
+│   │   └── Helpers/
+│   └── Package.swift
 └── README.md
 ```
 

@@ -22,6 +22,6 @@ depends = ["setup_precommit"]
 description = "Run unit tests"
 run = "cd src && swift test"
 
-[tasks.docker_build]
-description = "Build Docker image"
-run = "docker buildx build -t $(basename $(pwd)):dev -f docker/Dockerfile ."
+[tasks.image_build]
+description = "Build Docker/Podman image"
+run = "if command -v docker >/dev/null 2>&1; then docker build -t $(basename $(pwd)):dev -f docker/Dockerfile .; elif command -v podman >/dev/null 2>&1; then podman build -t $(basename $(pwd)):dev -f docker/Dockerfile .; else echo 'Neither Docker nor Podman is installed.'; fi"

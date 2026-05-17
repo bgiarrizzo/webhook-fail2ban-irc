@@ -39,13 +39,9 @@ RUN --mount=type=cache,target=/build/.build \
     --product webhooks2irc \
     --static-swift-stdlib \
     -Xlinker -ljemalloc && \
-    strip .build/release/webhooks2irc && \
-    BIN_PATH="$(swift build -c release --show-bin-path)" && \
-    # Copy main executable to staging area
-    cp "$BIN_PATH/webhooks2irc" /staging && \
+    cp "$(swift build -c release --show-bin-path)/webhooks2irc" /staging && \
     # Copy resources bundled by SPM to staging area
-    find -L "$BIN_PATH" -regex '.*\.resources$' -exec cp -Ra {} /staging \;
-
+    find -L "$(swift build -c release --show-bin-path)" -regex '.*\.resources$' -exec cp -Ra {} /staging \;
 
 # Switch to the staging area
 WORKDIR /staging

@@ -24,4 +24,4 @@ run = "cd src && swift test"
 
 [tasks.docker_build]
 description = "Build Docker image"
-run = "docker build -t $(basename $(pwd)):dev -f docker/Dockerfile ."
+run = "docker buildx build -t $(basename $(pwd)):dev -f docker/Dockerfile ."

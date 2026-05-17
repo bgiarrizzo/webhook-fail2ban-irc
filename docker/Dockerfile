@@ -7,7 +7,7 @@ FROM swift:6.3-bookworm AS build
 
 # Install only build dependencies (no dist-upgrade for faster, reproducible builds)
 ARG DEBIAN_FRONTEND=noninteractive
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache-build \
     apt-get -q update \
     && apt-get install -y --no-install-recommends libjemalloc-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -65,16 +65,12 @@ FROM debian:bookworm-slim
 
 # Install only runtime dependencies (no dist-upgrade for smaller layers)
 ARG DEBIAN_FRONTEND=noninteractive
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache-run \
     apt-get -q update \
-    && apt-get -q install -y \
-    --no-install-recommends \
-    libjemalloc2 \
-    ca-certificates \
-    tzdata \
-    # If your app or its dependencies import FoundationNetworking, also install `libcurl4`.
+    && apt-get -q install -y --no-install-recommends libjemalloc2 ca-certificates tzdata \
+    # If FoundationNetworking, also install `libcurl4`.
     # libcurl4 \
-    # If your app or its dependencies import FoundationXML, also install `libxml2`.
+    # If FoundationXML, also install `libxml2`.
     # libxml2 \
     && rm -r /var/lib/apt/lists/*
 

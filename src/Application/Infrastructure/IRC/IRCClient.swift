@@ -13,6 +13,7 @@ public actor IRCClient: IRCClientProtocol {
     private var activeChannel: (any Channel)?
     private var isConnecting: Bool
     private var pendingMessages: [IRCMessage]
+    private var isRegistered: Bool = false
 
     /// Creates an IRC client.
     /// - Parameters:
@@ -108,6 +109,13 @@ public actor IRCClient: IRCClientProtocol {
         try await sendRaw("NICK \(configuration.nick)")
         try await sendRaw("USER \(configuration.nick) 0 * :webhook-irc-relay")
 
+        logger.info("Waiting for server registration (001 RPL_WELCOME)...")
+        // JOIN commands will be sent after receiving 001 RPL_WELCOME
+    }
+
+    private func joinChannelsAndAnnounce() async throws {
+        logger.info("Server registered, joining \(channels.count) channels...")
+
         for channel in channels {
             try await sendRaw("JOIN \(channel.rawValue)")
         }
@@ -159,15 +167,25 @@ public actor IRCClient: IRCClientProtocol {
     private func handleInboundLine(_ line: String) async {
         logger.debug("IRC << \(line)")
 
+        // Handle PING
         if line.hasPrefix("PING") {
             let token = line.dropFirst(4).trimmingCharacters(in: .whitespaces)
             let response = token.isEmpty ? "PONG" : "PONG \(token)"
             try? await sendRaw(response)
+            return
+        }
+
+        // Handle 001 RPL_WELCOME - server accepted our registration
+        if !isRegistered && line.contains(" 001 ") {
+            logger.info("Received RPL_WELCOME (001), registration complete")
+            isRegistered = true
+            try? await joinChannelsAndAnnounce()
         }
     }
 
     private func handleDisconnect() async {
         activeChannel = nil
+        isRegistered = false
         if isConnecting {
             return
         }

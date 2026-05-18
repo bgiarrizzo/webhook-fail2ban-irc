@@ -112,13 +112,29 @@ public actor IRCClient: IRCClientProtocol {
             try await sendRaw("JOIN \(channel.rawValue)")
         }
 
+        // Wait for server to process JOINs before announcing presence
+        logger.info("Waiting for JOIN confirmations before announcing presence...")
+        try await Task.sleep(nanoseconds: 2_000_000_000)  // 2 seconds
+
+        logger.info("Announcing presence in \(channels.count) channels")
         try await announcePresence()
     }
 
     private func announcePresence() async throws {
         let announcement = "🤖 Bot is up & running!"
+        logger.info(
+            "Sending presence announcement to channels",
+            metadata: ["channels": "\(channels.map { $0.rawValue }.joined(separator: ", "))"])
+
         for channel in channels {
-            try await sendRaw("PRIVMSG \(channel.rawValue) :\(announcement)")
+            do {
+                try await sendRaw("PRIVMSG \(channel.rawValue) :\(announcement)")
+                logger.info("Presence announced", metadata: ["channel": "\(channel.rawValue)"])
+            } catch {
+                logger.error(
+                    "Failed to announce presence",
+                    metadata: ["channel": "\(channel.rawValue)", "error": "\(error)"])
+            }
         }
     }
 
@@ -126,6 +142,8 @@ public actor IRCClient: IRCClientProtocol {
         guard let channel = activeChannel else {
             throw IRCError.disconnected
         }
+
+        logger.debug("IRC >> \(line)")
 
         var buffer = channel.allocator.buffer(capacity: line.utf8.count + 2)
         buffer.writeString(line)
@@ -139,6 +157,8 @@ public actor IRCClient: IRCClientProtocol {
     }
 
     private func handleInboundLine(_ line: String) async {
+        logger.debug("IRC << \(line)")
+
         if line.hasPrefix("PING") {
             let token = line.dropFirst(4).trimmingCharacters(in: .whitespaces)
             let response = token.isEmpty ? "PONG" : "PONG \(token)"

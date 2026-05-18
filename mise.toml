@@ -4,6 +4,10 @@
 # update_date: 2024-05-05
 # documentation:
 
+[env]
+IRC_NICK = "dev_cloe"
+IRC_HOST = "192.168.1.17"
+
 [tasks.help]
 description = "List available project tasks"
 run = "mise tasks ls"
@@ -25,3 +29,7 @@ run = "cd src && swift test"
 [tasks.image_build]
 description = "Build Docker/Podman image"
 run = "if command -v docker >/dev/null 2>&1; then docker build -t $(basename $(pwd)):dev -f docker/Dockerfile .; elif command -v podman >/dev/null 2>&1; then podman build -t $(basename $(pwd)):dev -f docker/Dockerfile .; else echo 'Neither Docker nor Podman is installed.'; fi"
+
+[tasks.dev]
+description = "Run development environment"
+run = "cd src && swift run"

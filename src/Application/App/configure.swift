@@ -10,6 +10,8 @@ public func configure(
     ircClientOverride: (any IRCClientProtocol)? = nil,
     configurationOverride: AppConfiguration? = nil
 ) async throws {
+    app.http.server.configuration.port = 8090
+
     let configuration = configurationOverride ?? AppConfiguration.load(from: app.environment)
 
     let handlerRegistry = HandlerRegistry()

@@ -47,10 +47,7 @@ public struct AppConfiguration: Sendable {
             "lidarr": IRCChannel(rawValue: seedbox),
             "prowlarr": IRCChannel(rawValue: seedbox),
             "fail2ban": IRCChannel(rawValue: sysops),
-            "github": IRCChannel(rawValue: git),
-            "gitlab": IRCChannel(rawValue: git),
             "forgejo": IRCChannel(rawValue: git),
-            "gitea": IRCChannel(rawValue: git),
         ]
 
         let defaultSwaggerEnabled = environment.name != "production"

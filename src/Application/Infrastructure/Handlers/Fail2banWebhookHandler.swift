@@ -25,10 +25,33 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
             throw WebhookError.invalidPayload("Invalid Fail2ban payload")
         }
 
-        let ipAddress = decoded.ip ?? "unknown"
-        let jail = decoded.jail ?? "unknown"
-        let eventType = (decoded.eventType ?? decoded.type ?? "ban").lowercased()
-        let summary = "[Fail2ban] IP bannie : \(ipAddress) (jail: \(jail))"
+        let bantime: Int = decoded.bantime ?? 0
+        let eventType: String = decoded.eventType ?? "unknown"
+        let failures: Int = decoded.failures ?? 0
+        let hostname: String = decoded.hostname ?? "unknown"
+        let ipAddress: String = decoded.ip ?? "unknown"
+        let jail: String = decoded.jail ?? "unknown"
+        let message: String = decoded.message ?? ""
+
+        // Compose summary based on event type
+        let summary: String = {
+            switch eventType {
+            case "BAN":
+                // <hostname> [BAN] - [Jail : <name>] => IP: `<ip>` (https://db-ip.com/<ip>) for <bantime> hours after **<failures>** failure(s).
+                return
+                    "[Fail2ban] > \(hostname) [\(eventType)] - [Jail : \(jail)] => IP: `\(ipAddress)` (https://db-ip.com/\(ipAddress)) for \(bantime) hours after **\(failures)** failure(s)."
+            case "UNBAN":
+                // <hostname> [UNBAN] - [Jail : <name>] => IP: <ip> (https://db-ip.com/<ip>)
+                return
+                    "[Fail2ban] > \(hostname) [\(eventType)] - [Jail : \(jail)] => IP: `\(ipAddress)` (https://db-ip.com/\(ipAddress))"
+            case "JAILSTART":
+                return "[Fail2ban] > \(hostname) [\(eventType)] - \(jail)"
+            case "JAILSTOP":
+                return "[Fail2ban] > \(hostname) [\(eventType)] - \(jail)"
+            default:
+                return message.isEmpty ? "[Fail2ban] Event: \(eventType)" : message
+            }
+        }()
 
         return WebhookEvent(
             source: sourceIdentifier,
@@ -39,14 +62,19 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
         )
     }
 
+    /// Represents the expected Fail2ban webhook payload.
     private struct Payload: Codable {
+        let bantime: Int?
         let eventType: String?
-        let type: String?
+        let failures: Int?
+        let hostname: String?
         let ip: String?
         let jail: String?
+        let message: String?
     }
 }
 
+/// Extracts Data from a ByteBuffer payload.
 private func payloadData(from payload: ByteBuffer) throws -> Data {
     var mutable = payload
 

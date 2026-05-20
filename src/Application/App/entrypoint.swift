@@ -19,7 +19,7 @@ enum Entrypoint {
 
         let sentry: Sentry? =
             sentryDsn.isEmpty
-            ? nil : Sentry(dsn: sentryDsn, release: appVersion, environment: envName)
+            ? nil : try Sentry(dsn: sentryDsn, release: appVersion, environment: envName)
 
         let loggerLevel: Logger.Level = try Logger.Level.detect(from: &environment)
 

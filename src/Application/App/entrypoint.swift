@@ -15,11 +15,11 @@ enum Entrypoint {
         // Get App Version
         let appVersion: String = Environment.process.APP_VERSION ?? "unknown"
         // Get Sentry DSN
-        let sentryDsn: String = Environment.process.SENTRY_DSN
+        let sentryDsn: String = Environment.process.SENTRY_DSN ?? ""
 
         let sentry: Sentry? =
             sentryDsn.isEmpty
-            ? nil : Sentry(dsn: sentryDsn, environment: envName, release: appVersion)
+            ? nil : Sentry(dsn: sentryDsn, release: appVersion, environment: envName)
 
         let loggerLevel: Logger.Level = try Logger.Level.detect(from: &environment)
 

@@ -12,7 +12,7 @@
 
 Sentry activation rules:
 - Sentry is initialized only when the process runs in release mode.
-- If `SENTRY_DSN` is missing, the app continues without Sentry.
+- If `SENTRY_DSN` is missing or empty, the app continues without Sentry.
 - Sentry receives log events at warning level or higher.
 - Console logging remains enabled even when Sentry is active.
 

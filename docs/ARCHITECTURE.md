@@ -29,6 +29,13 @@
 - invalidPayload -> HTTP 400
 - IRC transport unavailable -> HTTP 503
 
+## Observability (Sentry)
+- Sentry integration is performed in `Application/App/entrypoint.swift`.
+- Sentry is enabled only in release mode and only if `SENTRY_DSN` is defined.
+- Logging is multiplexed: console handler is always active, Sentry handler is added conditionally.
+- Sentry handler level is `warning` and above via `SentryLogHandler`.
+- Shutdown path calls `sentry.shutdown()` to flush buffered events.
+
 ## Runtime resilience
 - IRCClient keeps a persistent TCP connection.
 - During initialization, it performs a handshake (NICK, USER, JOIN for each channel).

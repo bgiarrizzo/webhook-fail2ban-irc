@@ -5,8 +5,15 @@
 # documentation:
 
 [env]
+APP_VERSION = "development"
+ENV_NAME = "development"
+IRC_CHANNEL_GIT = "#dev"
+IRC_CHANNEL_SEEDBOX = "#dev"
+IRC_CHANNEL_SYSOPS = "#dev"
+IRC_HOST = "localhost" # Replace with your IRC server's IP address
 IRC_NICK = "dev_cloe"
-IRC_HOST = "192.168.1.17"
+SENTRY_DSN = "" # Replace with your Sentry DSN if you have one
+SWAGGER_ENABLED = "true"
 
 [tasks.help]
 description = "List available project tasks"

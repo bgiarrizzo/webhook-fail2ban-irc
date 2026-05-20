@@ -9,6 +9,7 @@ Swift/Vapor webhook relay that normalizes incoming events and forwards them to I
 - Joins configured IRC channels and announces presence with a startup message.
 - Sends formatted PRIVMSG lines over a persistent IRC TCP connection.
 - Publishes API docs with OpenAPI at /openapi.json and Swagger UI at /swagger.
+- Optionally forwards warning/error logs to Sentry in release mode when SENTRY_DSN is configured.
 
 Swagger/OpenAPI exposure policy:
 - Disabled by default in production.

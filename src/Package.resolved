@@ -1,5 +1,5 @@
 {
-  "originHash" : "35638eb5428cf2ce48e4886668cbcb0222a4cd662aaea1c88aa196a00b855556",
+  "originHash" : "0dd9d0df3a682094f9c2c46785595293283bde3af9fcc5c86766575b107dd8d4",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -166,7 +166,7 @@
     {
       "identity" : "swift-nio-extras",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-nio-extras.git",
+      "location" : "https://github.com/apple/swift-nio-extras",
       "state" : {
         "revision" : "5a48717e29f62cb8326d6d42e46b562ca93847a6",
         "version" : "1.34.0"
@@ -224,6 +224,15 @@
       "state" : {
         "revision" : "b53c1517e889d5479567729fbe143a59da302ffc",
         "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "swift-sentry",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/petrpavlik/swift-sentry.git",
+      "state" : {
+        "revision" : "de65bc412272b307e7d0b0f28e2d578cd1f0c811",
+        "version" : "1.0.0"
       }
     },
     {

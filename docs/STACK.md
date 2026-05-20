@@ -14,6 +14,13 @@
 - HTTP ingress via Vapor routes and middleware
 - IRC egress via raw TCP built with NIO
 
+## Logging and monitoring
+
+- SwiftLog for structured logging
+- swift-sentry (`Sentry` product) for error monitoring
+- Integration mode: conditional bootstrap in release builds when `SENTRY_DSN` is present
+- Export scope: warning/error logs through `SentryLogHandler`, with console logs always enabled
+
 ## Testing
 - Swift Testing package
 - VaporTesting for integration tests

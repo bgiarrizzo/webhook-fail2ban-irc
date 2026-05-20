@@ -13,6 +13,8 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
         // 📘 OpenAPI bindings for Vapor.
         .package(url: "https://github.com/vapor/swift-openapi-vapor.git", from: "1.0.1"),
+        // Sentry SDK for swift
+        .package(url: "https://github.com/petrpavlik/swift-sentry.git", from: "1.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -23,6 +25,7 @@ let package = Package(
                 .product(name: "NIOPosix", package: "swift-nio"),
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
+                .product(name: "SwiftSentry", package: "swift-sentry"),
             ],
             path: "Application",
             sources: ["App", "Domain", "Application", "Infrastructure", "Shared"],

@@ -5,6 +5,23 @@
 - macOS 13+ (or Linux compatible with Vapor 4)
 
 ## Environment variables
+
+### Sentry (optional)
+
+- SENTRY_DSN: DSN used to initialize Sentry.
+
+Sentry activation rules:
+- Sentry is initialized only when the process runs in release mode.
+- If `SENTRY_DSN` is missing, the app continues without Sentry.
+- Sentry receives log events at warning level or higher.
+- Console logging remains enabled even when Sentry is active.
+
+Example:
+- `export SENTRY_DSN='https://<public_key>@o0.ingest.sentry.io/<project_id>'`
+
+Operational note:
+- On shutdown (normal or error path), the app flushes and shuts down Sentry gracefully.
+
 ### IRC
 - IRC_HOST
 - IRC_PORT
@@ -15,8 +32,6 @@
 - IRC_CHANNEL_SEEDBOX (default: #seedbox)
 - IRC_CHANNEL_GIT (default: #git)
 - IRC_CHANNEL_SYSOPS (default: #sysops)
-
-
 
 ### API documentation toggle
 - SWAGGER_ENABLED (optional)

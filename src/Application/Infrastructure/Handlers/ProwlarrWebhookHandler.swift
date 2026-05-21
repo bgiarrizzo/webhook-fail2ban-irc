@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import NIOCore
 import NIOHTTP1
 
@@ -6,6 +7,7 @@ import NIOHTTP1
 public struct ProwlarrWebhookHandler: WebhookHandlerProtocol {
     /// Stable source identifier used by routing and registry.
     public let sourceIdentifier: String = "prowlarr"
+    private let logger = Logger(label: "webhooks2irc.handler.prowlarr")
 
     /// Creates a Prowlarr webhook handler.
     public init() {}
@@ -16,18 +18,33 @@ public struct ProwlarrWebhookHandler: WebhookHandlerProtocol {
     ///   - headers: HTTP headers.
     /// - Returns: Normalized webhook event.
     public func handle(payload: ByteBuffer, headers: HTTPHeaders) async throws -> WebhookEvent {
+        logger.debug(
+            "Handling Prowlarr payload",
+            metadata: [
+                "payload_bytes": "\(payload.readableBytes)",
+                "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
+                "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
+            ])
         let decoded: Payload
 
         do {
             let data = try payloadData(from: payload)
             decoded = try JSONDecoder.webhookDecoder().decode(Payload.self, from: data)
         } catch {
+            logger.warning("Invalid Prowlarr payload", metadata: ["error": "\(error)"])
             throw WebhookError.invalidPayload("Invalid Prowlarr payload")
         }
 
         let indexer = decoded.indexer?.name ?? "Unknown"
         let eventType = (decoded.eventType ?? "unknown").lowercased()
         let summary = buildSummary(for: decoded, eventType: eventType)
+        logger.info(
+            "Prowlarr payload normalized",
+            metadata: [
+                "event_type": "\(eventType)",
+                "indexer": "\(indexer)",
+                "summary_length": "\(summary.count)",
+            ])
 
         return WebhookEvent(
             source: sourceIdentifier,
@@ -75,6 +92,7 @@ public struct ProwlarrWebhookHandler: WebhookHandlerProtocol {
         case "test":
             return "[Prowlarr] Test message"
         default:
+            logger.warning("Unknown Prowlarr event type", metadata: ["event_type": "\(eventType)"])
             return "[Prowlarr] Evenement inconnu : \(eventType)"
         }
     }

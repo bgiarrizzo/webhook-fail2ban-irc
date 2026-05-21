@@ -39,12 +39,26 @@ enum Entrypoint {
         }
 
         let application: Application = try await Application.make(environment)
+        application.logger.notice(
+            "Application startup",
+            metadata: [
+                "environment": "\(envName)",
+                "app_version": "\(appVersion)",
+                "sentry_enabled": "\(!sentryDsn.isEmpty)",
+                "log_level": "\(loggerLevel.rawValue)",
+            ])
 
         // Configure and run the application, ensuring proper shutdown and error handling
         do {
+            application.logger.info("Configuring application")
             try await configure(application)
+            application.logger.info("Starting application execution loop")
             try await application.execute()
+            application.logger.info("Application execution loop completed")
         } catch {
+            application.logger.error(
+                "Application execution failed",
+                metadata: ["error": "\(error)"])
             application.logger.report(error: error)
             try? await application.asyncShutdown()
             try? await sentry?.shutdown()
@@ -52,7 +66,9 @@ enum Entrypoint {
         }
 
         // Ensure graceful shutdown of application and Sentry when execution completes
+        application.logger.info("Shutting down application")
         try await application.asyncShutdown()
+        application.logger.info("Shutting down Sentry transport")
         try? await sentry?.shutdown()
     }
 }

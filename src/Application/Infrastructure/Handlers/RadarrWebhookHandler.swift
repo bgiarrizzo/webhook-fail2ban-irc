@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import NIOCore
 import NIOHTTP1
 
@@ -6,6 +7,7 @@ import NIOHTTP1
 public struct RadarrWebhookHandler: WebhookHandlerProtocol {
     /// Stable source identifier used by routing and registry.
     public let sourceIdentifier: String = "radarr"
+    private let logger = Logger(label: "webhooks2irc.handler.radarr")
 
     /// Creates a Radarr webhook handler.
     public init() {}
@@ -16,12 +18,20 @@ public struct RadarrWebhookHandler: WebhookHandlerProtocol {
     ///   - headers: HTTP headers.
     /// - Returns: Normalized webhook event.
     public func handle(payload: ByteBuffer, headers: HTTPHeaders) async throws -> WebhookEvent {
+        logger.debug(
+            "Handling Radarr payload",
+            metadata: [
+                "payload_bytes": "\(payload.readableBytes)",
+                "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
+                "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
+            ])
         let decoded: Payload
 
         do {
             let data = try payloadData(from: payload)
             decoded = try JSONDecoder.webhookDecoder().decode(Payload.self, from: data)
         } catch {
+            logger.warning("Invalid Radarr payload", metadata: ["error": "\(error)"])
             throw WebhookError.invalidPayload("Invalid Radarr payload")
         }
 
@@ -29,6 +39,13 @@ public struct RadarrWebhookHandler: WebhookHandlerProtocol {
         let year = decoded.movie?.year.map(String.init) ?? "Unknown"
         let eventType = (decoded.eventType ?? "unknown").lowercased()
         let summary = buildSummary(for: decoded, eventType: eventType)
+        logger.info(
+            "Radarr payload normalized",
+            metadata: [
+                "event_type": "\(eventType)",
+                "title": "\(title)",
+                "year": "\(year)",
+            ])
 
         return WebhookEvent(
             source: sourceIdentifier,
@@ -99,6 +116,7 @@ public struct RadarrWebhookHandler: WebhookHandlerProtocol {
         case "test":
             return "[Radarr] Test message"
         default:
+            logger.warning("Unknown Radarr event type", metadata: ["event_type": "\(eventType)"])
             return "[Radarr] Evenement inconnu : \(eventType)"
         }
     }

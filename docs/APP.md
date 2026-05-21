@@ -17,8 +17,14 @@ webhook-irc-relay receives HTTP webhooks from external systems, normalizes them,
 - Input: POST /webhooks/:source with JSON body.
 - Output: IRC PRIVMSG sent to the mapped channel.
 
+## Observability goals
+- Preserve request correlation from HTTP ingress to IRC delivery with X-Request-Id.
+- Provide enough structured metadata to debug payload parsing, routing, and IRC transport failures.
+- Surface warning and error conditions to Sentry without losing local console visibility.
+
 ## Extensibility model
 Adding a new source requires only:
 1. A new handler file in Infrastructure/Handlers.
 2. One registration line in App/configure.swift.
 3. One source-to-channel mapping in Application/IRCChannelRouter wiring.
+4. Source-specific structured logs in the handler for payload diagnostics and event normalization.

@@ -13,6 +13,7 @@
 
 ## Request flow
 1. POST /webhooks/:source enters Vapor routing.
+2. RequestIDMiddleware injects or propagates X-Request-Id and logs request lifecycle timing.
 2. ProcessWebhookUseCase delegates to WebhookDispatcher.
 3. HandlerRegistry resolves a source handler.
 4. Handler decodes payload into WebhookEvent.
@@ -35,6 +36,9 @@
 - Logging is multiplexed: console handler is always active, Sentry handler is added conditionally.
 - Sentry handler level is `warning` and above via `SentryLogHandler`.
 - Shutdown path calls `sentry.shutdown()` to flush buffered events.
+- Application logs are structured and emitted from all active layers: bootstrap, middleware, routes, use case, dispatcher, registry, router, handlers, and IRC transport.
+- Request metadata includes request_id, method, path, remote address, content type, user agent, payload size, source, event type, and target IRC channel when available.
+- IRC transport logs include connection attempts, handshake, JOIN flow, inbound framing, disconnects, reconnect scheduling, message queueing, and queue flush.
 
 ## Runtime resilience
 - IRCClient keeps a persistent TCP connection.

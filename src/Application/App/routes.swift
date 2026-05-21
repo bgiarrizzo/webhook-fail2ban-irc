@@ -1,6 +1,8 @@
 import NIOCore
 import Vapor
 
+private let routesLogger = Logger(label: "webhooks2irc.app.routes")
+
 /// Registers HTTP routes for webhook ingestion.
 /// - Parameters:
 ///   - app: Vapor application instance.
@@ -11,12 +13,21 @@ func routes(
     processWebhookUseCase: ProcessWebhookUseCase,
     swaggerEnabled: Bool
 ) throws {
-    app.get { _ async in
-        "webhook-irc-relay"
+    app.logger.notice("Registering routes", metadata: ["swagger_enabled": "\(swaggerEnabled)"])
+
+    app.get { request async in
+        request.logger.debug("Health endpoint hit", metadata: ["path": "\(request.url.path)"])
+        return "webhook-irc-relay"
     }
 
     if swaggerEnabled {
         app.get("openapi.json") { request async -> Response in
+            request.logger.debug(
+                "OpenAPI JSON requested",
+                metadata: [
+                    "path": "\(request.url.path)",
+                    "method": "\(request.method.rawValue)",
+                ])
             let response = Response(
                 status: .ok,
                 body: .init(
@@ -27,7 +38,10 @@ func routes(
             return response
         }
 
-        app.get("swagger") { _ async -> Response in
+        app.get("swagger") { request async -> Response in
+            request.logger.debug(
+                "Swagger UI requested",
+                metadata: ["path": "\(request.url.path)"])
             let response = Response(status: .ok, body: .init(string: swaggerHTMLPage))
             response.headers.replaceOrAdd(name: .contentType, value: "text/html; charset=utf-8")
             return response
@@ -36,12 +50,26 @@ func routes(
 
     app.post("webhooks", ":source") { request async throws -> WebhookAcceptedResponse in
         guard let source = request.parameters.get("source") else {
+            request.logger.warning("Missing source path parameter")
             throw Abort(.badRequest, reason: "Missing source parameter")
         }
 
         guard let payload = request.body.data else {
+            request.logger.warning(
+                "Missing request body",
+                metadata: ["source": "\(source)"])
             throw Abort(.badRequest, reason: "Missing request body")
         }
+
+        request.logger.notice(
+            "Webhook request received",
+            metadata: [
+                "source": "\(source)",
+                "payload_bytes": "\(payload.readableBytes)",
+                "content_type": "\(request.headers.first(name: .contentType) ?? "unknown")",
+                "user_agent": "\(request.headers.first(name: .userAgent) ?? "unknown")",
+                "remote_address": "\(request.remoteAddress?.description ?? "unknown")",
+            ])
 
         do {
             let outcome = try await processWebhookUseCase.execute(
@@ -50,6 +78,14 @@ func routes(
                 headers: request.headers
             )
 
+            request.logger.info(
+                "Webhook processed and relayed",
+                metadata: [
+                    "source": "\(outcome.event.source)",
+                    "event_type": "\(outcome.event.eventType)",
+                    "channel": "\(outcome.channel.rawValue)",
+                ])
+
             return WebhookAcceptedResponse(
                 status: "accepted",
                 source: outcome.event.source,
@@ -57,9 +93,20 @@ func routes(
                 channel: outcome.channel.rawValue
             )
         } catch let error as WebhookError {
+            request.logger.warning(
+                "Webhook processing failed with domain validation error",
+                metadata: ["source": "\(source)", "error": "\(error)"])
             throw mapWebhookError(error)
         } catch let error as IRCError {
+            request.logger.error(
+                "Webhook processing failed with IRC transport error",
+                metadata: ["source": "\(source)", "error": "\(error)"])
             throw mapIRCError(error)
+        } catch {
+            request.logger.error(
+                "Webhook processing failed with unexpected error",
+                metadata: ["source": "\(source)", "error": "\(error)"])
+            throw error
         }
     }
 }
@@ -95,78 +142,80 @@ private let swaggerHTMLPage = """
     """
 
 private func openAPIDocumentJSON(baseURL: String) -> String {
-    """
-    {
-        "openapi": "3.0.3",
-        "info": {
-            "title": "webhook-irc-relay API",
-            "version": "1.0.0",
-            "description": "Webhook ingress and IRC relay service"
-        },
-        "servers": [
-            {
-                "url": "http://\(baseURL):8080"
-            }
-        ],
-        "paths": {
-            "/webhooks/{source}": {
-                "post": {
-                    "summary": "Ingest and relay a webhook",
-                    "parameters": [
-                        {
-                            "name": "source",
-                            "in": "path",
-                            "required": true,
-                            "schema": { "type": "string" }
-                        },
-                        {
-                            // "name": "X-Webhook-Token", // Auth supprimée
-                            "in": "header",
-                            "required": true,
-                            "schema": { "type": "string" }
-                        }
-                    ],
-                    "requestBody": {
-                        "required": true,
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "additionalProperties": true
-                                }
+    routesLogger.debug("Generating OpenAPI document", metadata: ["base_url": "\(baseURL)"])
+    return """
+        {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "webhook-irc-relay API",
+                "version": "1.0.0",
+                "description": "Webhook ingress and IRC relay service"
+            },
+            "servers": [
+                {
+                    "url": "http://\(baseURL):8080"
+                }
+            ],
+            "paths": {
+                "/webhooks/{source}": {
+                    "post": {
+                        "summary": "Ingest and relay a webhook",
+                        "parameters": [
+                            {
+                                "name": "source",
+                                "in": "path",
+                                "required": true,
+                                "schema": { "type": "string" }
+                            },
+                            {
+                                // "name": "X-Webhook-Token", // Auth supprimée
+                                "in": "header",
+                                "required": true,
+                                "schema": { "type": "string" }
                             }
-                        }
-                    },
-                    "responses": {
-                        "200": {
-                            "description": "Accepted and relayed",
+                        ],
+                        "requestBody": {
+                            "required": true,
                             "content": {
                                 "application/json": {
                                     "schema": {
                                         "type": "object",
-                                        "properties": {
-                                            "status": { "type": "string" },
-                                            "source": { "type": "string" },
-                                            "eventType": { "type": "string" },
-                                            "channel": { "type": "string" }
-                                        }
+                                        "additionalProperties": true
                                     }
                                 }
                             }
                         },
-                        "400": { "description": "Invalid payload" },
-                        // "401": { "description": "Invalid token" }, // Auth supprimée
-                        "404": { "description": "Unknown source" },
-                        "503": { "description": "IRC transport unavailable" }
+                        "responses": {
+                            "200": {
+                                "description": "Accepted and relayed",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": { "type": "string" },
+                                                "source": { "type": "string" },
+                                                "eventType": { "type": "string" },
+                                                "channel": { "type": "string" }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": { "description": "Invalid payload" },
+                            // "401": { "description": "Invalid token" }, // Auth supprimée
+                            "404": { "description": "Unknown source" },
+                            "503": { "description": "IRC transport unavailable" }
+                        }
                     }
                 }
             }
         }
-    }
-    """
+        """
 }
 
 private func mapWebhookError(_ error: WebhookError) -> Abort {
+    routesLogger.warning("Mapping webhook error", metadata: ["error": "\(error)"])
     switch error {
     case .unknownSource(let source):
         return Abort(.notFound, reason: "Unknown source: \(source)")
@@ -178,6 +227,7 @@ private func mapWebhookError(_ error: WebhookError) -> Abort {
 }
 
 private func mapIRCError(_ error: IRCError) -> Abort {
+    routesLogger.error("Mapping IRC error", metadata: ["error": "\(error)"])
     switch error {
     case .disconnected:
         return Abort(.serviceUnavailable, reason: "IRC connection unavailable")

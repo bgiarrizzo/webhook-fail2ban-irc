@@ -31,6 +31,14 @@
 - Source unknown returns 404.
 - Invalid JSON payload returns 400.
 
+## Observability and troubleshooting
+- Every HTTP request is correlated with X-Request-Id and returned in the response headers.
+- Request logs include method, path, query, user agent, remote address, response status, and duration.
+- Webhook processing logs include source, payload size, normalized event type, and routed IRC channel.
+- Source handlers log payload decoding failures and unknown event types.
+- IRC logs include connect, disconnect, reconnect, queueing, flushing, raw send failures, and inbound protocol events.
+- Warning and error logs can be exported to Sentry when `SENTRY_DSN` is configured.
+
 ## Message safety
 - IRC messages are sanitized to remove CR/LF and control characters.
 - Message length is capped to 400 characters.

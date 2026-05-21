@@ -20,6 +20,8 @@
 - swift-sentry (`Sentry` product) for error monitoring
 - Integration mode: conditional bootstrap in release builds when `SENTRY_DSN` is present
 - Export scope: warning/error logs through `SentryLogHandler`, with console logs always enabled
+- Correlation model: request-scoped metadata propagated from middleware to route/application/transport logs
+- Troubleshooting scope: HTTP ingress, payload decoding, source routing, IRC connection lifecycle, and outbound delivery
 
 ## Testing
 - Swift Testing package

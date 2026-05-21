@@ -38,14 +38,34 @@ public actor IRCClient: IRCClientProtocol {
 
     /// Starts the IRC client lifecycle.
     public func start() async throws {
+        logger.notice(
+            "Starting IRC client",
+            metadata: [
+                "host": "\(configuration.host)",
+                "port": "\(configuration.port)",
+                "nick": "\(configuration.nick)",
+                "channels_count": "\(channels.count)",
+            ])
         try await connectIfNeeded()
     }
 
     /// Sends one message to IRC or queues it when disconnected.
     /// - Parameter message: Message to relay.
     public func send(_ message: IRCMessage) async throws {
+        logger.debug(
+            "Queue/send request received",
+            metadata: [
+                "channel": "\(message.channel.rawValue)",
+                "message_length": "\(message.text.count)",
+                "connected": "\(activeChannel != nil)",
+                "pending_messages": "\(pendingMessages.count)",
+            ])
+
         if activeChannel == nil {
             pendingMessages.append(message)
+            logger.info(
+                "IRC disconnected, message queued",
+                metadata: ["pending_messages": "\(pendingMessages.count)"])
             try await connectIfNeeded()
             return
         }
@@ -64,10 +84,19 @@ public actor IRCClient: IRCClientProtocol {
 
     private func connectIfNeeded() async throws {
         if activeChannel != nil || isConnecting {
+            logger.debug(
+                "Skipping connect attempt",
+                metadata: [
+                    "active_channel": "\(activeChannel != nil)",
+                    "is_connecting": "\(isConnecting)",
+                ])
             return
         }
 
         isConnecting = true
+        logger.notice(
+            "Attempting IRC TCP connection",
+            metadata: ["host": "\(configuration.host)", "port": "\(configuration.port)"])
 
         let bootstrap = ClientBootstrap(group: eventLoopGroup)
             .channelInitializer { channel in
@@ -85,6 +114,7 @@ public actor IRCClient: IRCClientProtocol {
             ).get()
             activeChannel = channel
             isConnecting = false
+            logger.notice("IRC TCP connection established")
 
             channel.closeFuture.whenComplete { _ in
                 Task {
@@ -94,6 +124,7 @@ public actor IRCClient: IRCClientProtocol {
 
             try await performHandshake()
             try await flushPendingMessages()
+            logger.info("IRC client ready")
         } catch {
             isConnecting = false
             logger.error("IRC connection failed", metadata: ["error": "\(error)"])
@@ -103,9 +134,11 @@ public actor IRCClient: IRCClientProtocol {
 
     private func performHandshake() async throws {
         if let password = configuration.password, password.isEmpty == false {
+            logger.debug("Sending IRC PASS command")
             try await sendRaw("PASS \(password)")
         }
 
+        logger.debug("Sending IRC NICK/USER handshake")
         try await sendRaw("NICK \(configuration.nick)")
         try await sendRaw("USER \(configuration.nick) 0 * :webhook-irc-relay")
 
@@ -117,6 +150,7 @@ public actor IRCClient: IRCClientProtocol {
         logger.info("Server registered, joining \(channels.count) channels...")
 
         for channel in channels {
+            logger.debug("Joining channel", metadata: ["channel": "\(channel.rawValue)"])
             try await sendRaw("JOIN \(channel.rawValue)")
         }
 
@@ -148,6 +182,7 @@ public actor IRCClient: IRCClientProtocol {
 
     private func sendRaw(_ line: String) async throws {
         guard let channel = activeChannel else {
+            logger.warning("Attempted to send raw line while disconnected")
             throw IRCError.disconnected
         }
 
@@ -160,6 +195,7 @@ public actor IRCClient: IRCClientProtocol {
         do {
             try await channel.writeAndFlush(buffer).get()
         } catch {
+            logger.error("Raw write failed", metadata: ["error": "\(error)"])
             throw IRCError.sendFailed(String(describing: error))
         }
     }
@@ -171,6 +207,7 @@ public actor IRCClient: IRCClientProtocol {
         if line.hasPrefix("PING") {
             let token = line.dropFirst(4).trimmingCharacters(in: .whitespaces)
             let response = token.isEmpty ? "PONG" : "PONG \(token)"
+            logger.debug("Responding to server PING")
             try? await sendRaw(response)
             return
         }
@@ -184,6 +221,12 @@ public actor IRCClient: IRCClientProtocol {
     }
 
     private func handleDisconnect() async {
+        logger.warning(
+            "IRC channel disconnected",
+            metadata: [
+                "is_connecting": "\(isConnecting)",
+                "pending_messages": "\(pendingMessages.count)",
+            ])
         activeChannel = nil
         isRegistered = false
         if isConnecting {
@@ -194,20 +237,25 @@ public actor IRCClient: IRCClientProtocol {
     }
 
     private func scheduleReconnect() async throws {
+        logger.notice("Scheduling IRC reconnect", metadata: ["delay_seconds": "2"])
         try await Task.sleep(nanoseconds: 2_000_000_000)
         try await connectIfNeeded()
     }
 
     private func flushPendingMessages() async throws {
         guard pendingMessages.isEmpty == false else {
+            logger.debug("No pending messages to flush")
             return
         }
 
         let buffered = pendingMessages
         pendingMessages.removeAll(keepingCapacity: true)
+        logger.info("Flushing pending messages", metadata: ["count": "\(buffered.count)"])
 
         for message in buffered {
             try await send(message)
         }
+
+        logger.info("Pending messages flushed")
     }
 }

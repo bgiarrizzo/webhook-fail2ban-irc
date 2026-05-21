@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import NIOCore
 import NIOHTTP1
 
@@ -6,6 +7,7 @@ import NIOHTTP1
 public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
     /// Stable source identifier used by routing and registry.
     public let sourceIdentifier: String = "fail2ban"
+    private let logger = Logger(label: "webhooks2irc.handler.fail2ban")
 
     /// Creates a Fail2ban webhook handler.
     public init() {}
@@ -16,17 +18,25 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
     ///   - headers: HTTP headers.
     /// - Returns: Normalized webhook event.
     public func handle(payload: ByteBuffer, headers: HTTPHeaders) async throws -> WebhookEvent {
+        logger.debug(
+            "Handling Fail2ban payload",
+            metadata: [
+                "payload_bytes": "\(payload.readableBytes)",
+                "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
+                "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
+            ])
         let decoded: Payload
 
         do {
             let data = try payloadData(from: payload)
             decoded = try JSONDecoder.webhookDecoder().decode(Payload.self, from: data)
         } catch {
+            logger.warning("Invalid Fail2ban payload", metadata: ["error": "\(error)"])
             throw WebhookError.invalidPayload("Invalid Fail2ban payload")
         }
 
         let bantime: Int = decoded.bantime ?? 0
-        let eventType: String = decoded.eventType ?? "unknown"
+        let eventType: String = (decoded.eventType ?? decoded.type ?? "unknown").lowercased()
         let failures: Int = decoded.failures ?? 0
         let hostname: String = decoded.hostname ?? "unknown"
         let ipAddress: String = decoded.ip ?? "unknown"
@@ -36,22 +46,37 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
         // Compose summary based on event type
         let summary: String = {
             switch eventType {
-            case "BAN":
-                // <hostname> [BAN] - [Jail : <name>] => IP: `<ip>` (https://db-ip.com/<ip>) for <bantime> hours after **<failures>** failure(s).
+            case "ban":
+                if hostname == "unknown" && bantime == 0 && failures == 0 {
+                    return "[Fail2ban] IP bannie : \(ipAddress) (jail: \(jail))"
+                }
                 return
-                    "[Fail2ban] > \(hostname) [\(eventType)] - [Jail : \(jail)] => IP: `\(ipAddress)` (https://db-ip.com/\(ipAddress)) for \(bantime) hours after **\(failures)** failure(s)."
-            case "UNBAN":
-                // <hostname> [UNBAN] - [Jail : <name>] => IP: <ip> (https://db-ip.com/<ip>)
+                    "[Fail2ban] > \(hostname) [BAN] - [Jail : \(jail)] => IP: `\(ipAddress)` (https://db-ip.com/\(ipAddress)) for \(bantime) hours after **\(failures)** failure(s)."
+            case "unban":
+                if hostname == "unknown" {
+                    return "[Fail2ban] IP debannie : \(ipAddress) (jail: \(jail))"
+                }
                 return
-                    "[Fail2ban] > \(hostname) [\(eventType)] - [Jail : \(jail)] => IP: `\(ipAddress)` (https://db-ip.com/\(ipAddress))"
-            case "JAILSTART":
-                return "[Fail2ban] > \(hostname) [\(eventType)] - \(jail)"
-            case "JAILSTOP":
-                return "[Fail2ban] > \(hostname) [\(eventType)] - \(jail)"
+                    "[Fail2ban] > \(hostname) [UNBAN] - [Jail : \(jail)] => IP: `\(ipAddress)` (https://db-ip.com/\(ipAddress))"
+            case "jailstart":
+                return "[Fail2ban] > \(hostname) [JAILSTART] - \(jail)"
+            case "jailstop":
+                return "[Fail2ban] > \(hostname) [JAILSTOP] - \(jail)"
             default:
+                logger.warning(
+                    "Unknown Fail2ban event type", metadata: ["event_type": "\(eventType)"])
                 return message.isEmpty ? "[Fail2ban] Event: \(eventType)" : message
             }
         }()
+
+        logger.info(
+            "Fail2ban payload normalized",
+            metadata: [
+                "event_type": "\(eventType)",
+                "hostname": "\(hostname)",
+                "jail": "\(jail)",
+                "ip": "\(ipAddress)",
+            ])
 
         return WebhookEvent(
             source: sourceIdentifier,
@@ -66,6 +91,7 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
     private struct Payload: Codable {
         let bantime: Int?
         let eventType: String?
+        let type: String?
         let failures: Int?
         let hostname: String?
         let ip: String?

@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import NIOCore
 import NIOHTTP1
 
@@ -6,6 +7,7 @@ import NIOHTTP1
 public struct LidarrWebhookHandler: WebhookHandlerProtocol {
     /// Stable source identifier used by routing and registry.
     public let sourceIdentifier: String = "lidarr"
+    private let logger = Logger(label: "webhooks2irc.handler.lidarr")
 
     /// Creates a Lidarr webhook handler.
     public init() {}
@@ -16,12 +18,20 @@ public struct LidarrWebhookHandler: WebhookHandlerProtocol {
     ///   - headers: HTTP headers.
     /// - Returns: Normalized webhook event.
     public func handle(payload: ByteBuffer, headers: HTTPHeaders) async throws -> WebhookEvent {
+        logger.debug(
+            "Handling Lidarr payload",
+            metadata: [
+                "payload_bytes": "\(payload.readableBytes)",
+                "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
+                "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
+            ])
         let decoded: Payload
 
         do {
             let data = try payloadData(from: payload)
             decoded = try JSONDecoder.webhookDecoder().decode(Payload.self, from: data)
         } catch {
+            logger.warning("Invalid Lidarr payload", metadata: ["error": "\(error)"])
             throw WebhookError.invalidPayload("Invalid Lidarr payload")
         }
 
@@ -29,6 +39,14 @@ public struct LidarrWebhookHandler: WebhookHandlerProtocol {
         let album = decoded.album?.title ?? "Unknown"
         let eventType = (decoded.eventType ?? "unknown").lowercased()
         let summary = buildSummary(for: decoded, eventType: eventType)
+        logger.info(
+            "Lidarr payload normalized",
+            metadata: [
+                "event_type": "\(eventType)",
+                "artist": "\(artist)",
+                "album": "\(album)",
+                "summary_length": "\(summary.count)",
+            ])
 
         return WebhookEvent(
             source: sourceIdentifier,
@@ -103,6 +121,7 @@ public struct LidarrWebhookHandler: WebhookHandlerProtocol {
         case "test":
             return "[Lidarr] Test message"
         default:
+            logger.warning("Unknown Lidarr event type", metadata: ["event_type": "\(eventType)"])
             return "[Lidarr] Evenement inconnu : \(eventType)"
         }
     }

@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import NIOCore
 import NIOHTTP1
 
@@ -6,6 +7,7 @@ import NIOHTTP1
 public struct SonarrWebhookHandler: WebhookHandlerProtocol {
     /// Stable source identifier used by routing and registry.
     public let sourceIdentifier: String = "sonarr"
+    private let logger = Logger(label: "webhooks2irc.handler.sonarr")
 
     /// Creates a Sonarr webhook handler.
     public init() {}
@@ -16,12 +18,20 @@ public struct SonarrWebhookHandler: WebhookHandlerProtocol {
     ///   - headers: HTTP headers.
     /// - Returns: Normalized webhook event.
     public func handle(payload: ByteBuffer, headers: HTTPHeaders) async throws -> WebhookEvent {
+        logger.debug(
+            "Handling Sonarr payload",
+            metadata: [
+                "payload_bytes": "\(payload.readableBytes)",
+                "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
+                "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
+            ])
         let decoded: Payload
 
         do {
             let data = try payloadData(from: payload)
             decoded = try JSONDecoder.webhookDecoder().decode(Payload.self, from: data)
         } catch {
+            logger.warning("Invalid Sonarr payload", metadata: ["error": "\(error)"])
             throw WebhookError.invalidPayload("Invalid Sonarr payload")
         }
 
@@ -30,6 +40,15 @@ public struct SonarrWebhookHandler: WebhookHandlerProtocol {
         let episode = decoded.episodes?.first?.episodeNumber ?? 0
         let eventType = (decoded.eventType ?? "unknown").lowercased()
         let summary = buildSummary(for: decoded, eventType: eventType)
+        logger.info(
+            "Sonarr payload normalized",
+            metadata: [
+                "event_type": "\(eventType)",
+                "series": "\(series)",
+                "season": "\(season)",
+                "episode": "\(episode)",
+                "summary_length": "\(summary.count)",
+            ])
 
         return WebhookEvent(
             source: sourceIdentifier,
@@ -100,6 +119,7 @@ public struct SonarrWebhookHandler: WebhookHandlerProtocol {
         case "test":
             return "[Sonarr] Test message"
         default:
+            logger.warning("Unknown Sonarr event type", metadata: ["event_type": "\(eventType)"])
             return "[Sonarr] Evenement inconnu : \(eventType)"
         }
     }

@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import NIOCore
 import NIOHTTP1
 
@@ -6,6 +7,7 @@ import NIOHTTP1
 public struct BazarrWebhookHandler: WebhookHandlerProtocol {
     /// Stable source identifier used by routing and registry.
     public let sourceIdentifier: String = "bazarr"
+    private let logger = Logger(label: "webhooks2irc.handler.bazarr")
 
     /// Creates a Bazarr webhook handler.
     public init() {}
@@ -16,17 +18,28 @@ public struct BazarrWebhookHandler: WebhookHandlerProtocol {
     ///   - headers: HTTP headers.
     /// - Returns: Normalized webhook event.
     public func handle(payload: ByteBuffer, headers: HTTPHeaders) async throws -> WebhookEvent {
+        logger.debug(
+            "Handling Bazarr payload",
+            metadata: [
+                "payload_bytes": "\(payload.readableBytes)",
+                "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
+                "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
+            ])
         let decoded: Payload
 
         do {
             let data = try payloadData(from: payload)
             decoded = try JSONDecoder.webhookDecoder().decode(Payload.self, from: data)
         } catch {
+            logger.warning("Invalid Bazarr payload", metadata: ["error": "\(error)"])
             throw WebhookError.invalidPayload("Invalid Bazarr payload")
         }
 
         let eventType = (decoded.eventType ?? decoded.type ?? "unknown").lowercased()
         let summary = buildSummary(for: decoded, eventType: eventType)
+        logger.info(
+            "Bazarr payload normalized",
+            metadata: ["event_type": "\(eventType)", "summary_length": "\(summary.count)"])
 
         return WebhookEvent(
             source: sourceIdentifier,
@@ -49,6 +62,7 @@ public struct BazarrWebhookHandler: WebhookHandlerProtocol {
         case "test":
             return "[Bazarr] Test message"
         default:
+            logger.warning("Unknown Bazarr event type", metadata: ["event_type": "\(eventType)"])
             return "[Bazarr] Evenement inconnu : \(eventType)"
         }
     }

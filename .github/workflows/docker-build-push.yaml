@@ -1,12 +1,20 @@
 name: Docker Build and Push
 
+# Run Workflow on all files under src directory.
 on:
   push:
+    paths:
+      - src/**
     branches:
       - main
   release:
     types: [created]
   workflow_dispatch:
+
+# Cancel job if a new job is triggered while the current job is still running.
+concurrency:
+  group: docker-build-push
+  cancel-in-progress: true
 
 jobs:
   build-and-push:

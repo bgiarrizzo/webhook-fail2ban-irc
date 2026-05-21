@@ -116,7 +116,8 @@ final class BreadcrumbTrailStore: @unchecked Sendable {
             .sorted { $0.key < $1.key }
             .map { "\($0.key)=\($0.value)" }
             .joined(separator: ",")
-        let combined = compactMetadata.isEmpty
+        let combined =
+            compactMetadata.isEmpty
             ? "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message)"
             : "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message) | \(compactMetadata)"
 
@@ -200,10 +201,13 @@ struct ContextualSentryLogHandler: LogHandler {
             .merging(baseMetadata, uniquingKeysWith: { current, _ in current })
             .merging(metadataProvider?.get() ?? [:], uniquingKeysWith: { current, _ in current })
 
-        let breadcrumbMetadata = level >= .warning
-            ? Self.breadcrumbStore.metadataForEvent(metadata: mergedMetadata, limit: breadcrumbLimit)
+        let breadcrumbMetadata =
+            level >= .warning
+            ? Self.breadcrumbStore.metadataForEvent(
+                metadata: mergedMetadata, limit: breadcrumbLimit)
             : [:]
-        let enrichedMetadata = mergedMetadata.merging(breadcrumbMetadata, uniquingKeysWith: { current, _ in current })
+        let enrichedMetadata = mergedMetadata.merging(
+            breadcrumbMetadata, uniquingKeysWith: { current, _ in current })
         let normalizedMetadata = Self.normalizeMetadataForSentry(enrichedMetadata)
 
         Self.breadcrumbStore.record(

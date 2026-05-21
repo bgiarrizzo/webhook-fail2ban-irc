@@ -50,8 +50,11 @@ struct ContextualSentryLogHandlerTests {
         #expect(metadata["breadcrumbs_scope"]?.description == "request_id")
         #expect(metadata["breadcrumb_count"]?.description == "2")
         #expect(metadata["breadcrumb_1"]?.description.contains("First request breadcrumb") == true)
-        #expect(metadata["breadcrumb_2"]?.description.contains("Another first request breadcrumb") == true)
-        #expect(metadata["breadcrumb_1"]?.description.contains("Second request breadcrumb") == false)
+        #expect(
+            metadata["breadcrumb_2"]?.description.contains("Another first request breadcrumb")
+                == true)
+        #expect(
+            metadata["breadcrumb_1"]?.description.contains("Second request breadcrumb") == false)
     }
 
     @Test("Falls back to global breadcrumbs when request_id has no trail")

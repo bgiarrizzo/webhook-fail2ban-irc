@@ -1,5 +1,4 @@
 import Testing
-
 @testable import webhooks2irc
 
 @Suite("IRCChannelRouter tests")
@@ -19,7 +18,7 @@ struct IRCChannelRouterTests {
     @Test("Throws for unknown source")
     func throwsForUnknownSource() {
         let router = IRCChannelRouter(routes: [
-            "radarr": IRCChannel(rawValue: "#seedbox")
+            "radarr": IRCChannel(rawValue: "#seedbox"),
         ])
 
         #expect(throws: WebhookError.unknownSource("unknown")) {

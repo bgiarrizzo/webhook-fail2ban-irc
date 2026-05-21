@@ -24,7 +24,8 @@ public final class IRCChannelRouter: Sendable {
 
         logger.debug(
             "Channel route resolved",
-            metadata: ["source": "\(normalizedSource)", "channel": "\(channel.rawValue)"])
+            metadata: ["source": "\(normalizedSource)", "channel": "\(channel.rawValue)"]
+        )
 
         return channel
     }

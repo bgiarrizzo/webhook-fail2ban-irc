@@ -1,7 +1,6 @@
 import NIOCore
 import NIOHTTP1
 import Testing
-
 @testable import webhooks2irc
 
 @Suite("LidarrWebhookHandler tests")
@@ -11,7 +10,7 @@ struct LidarrWebhookHandlerTests {
         let handler = LidarrWebhookHandler()
         let payload = ByteBuffer(
             string:
-                "{\"eventType\":\"AlbumAdded\",\"artist\":{\"name\":\"Daft Punk\"},\"album\":{\"title\":\"Discovery\"}}"
+            "{\"eventType\":\"AlbumAdded\",\"artist\":{\"name\":\"Daft Punk\"},\"album\":{\"title\":\"Discovery\"}}"
         )
 
         let event = try await handler.handle(payload: payload, headers: HTTPHeaders())

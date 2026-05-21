@@ -27,12 +27,15 @@ func routes(
                 metadata: [
                     "path": "\(request.url.path)",
                     "method": "\(request.method.rawValue)",
-                ])
+                ]
+            )
             let response = Response(
                 status: .ok,
                 body: .init(
                     string: openAPIDocumentJSON(
-                        baseURL: request.application.http.server.configuration.hostname))
+                        baseURL: request.application.http.server.configuration.hostname
+                    )
+                )
             )
             response.headers.replaceOrAdd(name: .contentType, value: "application/json")
             return response
@@ -41,7 +44,8 @@ func routes(
         app.get("swagger") { request async -> Response in
             request.logger.debug(
                 "Swagger UI requested",
-                metadata: ["path": "\(request.url.path)"])
+                metadata: ["path": "\(request.url.path)"]
+            )
             let response = Response(status: .ok, body: .init(string: swaggerHTMLPage))
             response.headers.replaceOrAdd(name: .contentType, value: "text/html; charset=utf-8")
             return response
@@ -57,7 +61,8 @@ func routes(
         guard let payload = request.body.data else {
             request.logger.warning(
                 "Missing request body",
-                metadata: ["source": "\(source)"])
+                metadata: ["source": "\(source)"]
+            )
             throw Abort(.badRequest, reason: "Missing request body")
         }
 
@@ -69,7 +74,8 @@ func routes(
                 "content_type": "\(request.headers.first(name: .contentType) ?? "unknown")",
                 "user_agent": "\(request.headers.first(name: .userAgent) ?? "unknown")",
                 "remote_address": "\(request.remoteAddress?.description ?? "unknown")",
-            ])
+            ]
+        )
 
         do {
             let outcome = try await processWebhookUseCase.execute(
@@ -84,7 +90,8 @@ func routes(
                     "source": "\(outcome.event.source)",
                     "event_type": "\(outcome.event.eventType)",
                     "channel": "\(outcome.channel.rawValue)",
-                ])
+                ]
+            )
 
             return WebhookAcceptedResponse(
                 status: "accepted",
@@ -95,134 +102,137 @@ func routes(
         } catch let error as WebhookError {
             request.logger.warning(
                 "Webhook processing failed with domain validation error",
-                metadata: ["source": "\(source)", "error": "\(error)"])
+                metadata: ["source": "\(source)", "error": "\(error)"]
+            )
             throw mapWebhookError(error)
         } catch let error as IRCError {
             request.logger.error(
                 "Webhook processing failed with IRC transport error",
-                metadata: ["source": "\(source)", "error": "\(error)"])
+                metadata: ["source": "\(source)", "error": "\(error)"]
+            )
             throw mapIRCError(error)
         } catch {
             request.logger.error(
                 "Webhook processing failed with unexpected error",
-                metadata: ["source": "\(source)", "error": "\(error)"])
+                metadata: ["source": "\(source)", "error": "\(error)"]
+            )
             throw error
         }
     }
 }
 
 private let swaggerHTMLPage = """
-    <!doctype html>
-    <html lang="en">
-        <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>webhook-irc-relay API docs</title>
-            <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
-            <style>
-                body { margin: 0; background: #10141a; }
-                #swagger-ui { max-width: 1200px; margin: 0 auto; }
-            </style>
-        </head>
-        <body>
-            <div id="swagger-ui"></div>
-            <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-            <script>
-                window.onload = function () {
-                    SwaggerUIBundle({
-                        url: '/openapi.json',
-                        dom_id: '#swagger-ui',
-                        deepLinking: true,
-                        displayRequestDuration: true
-                    });
-                };
-            </script>
-        </body>
-    </html>
-    """
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>webhook-irc-relay API docs</title>
+        <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+        <style>
+            body { margin: 0; background: #10141a; }
+            #swagger-ui { max-width: 1200px; margin: 0 auto; }
+        </style>
+    </head>
+    <body>
+        <div id="swagger-ui"></div>
+        <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+        <script>
+            window.onload = function () {
+                SwaggerUIBundle({
+                    url: '/openapi.json',
+                    dom_id: '#swagger-ui',
+                    deepLinking: true,
+                    displayRequestDuration: true
+                });
+            };
+        </script>
+    </body>
+</html>
+"""
 
 private func openAPIDocumentJSON(baseURL: String) -> String {
     routesLogger.debug("Generating OpenAPI document", metadata: ["base_url": "\(baseURL)"])
     return """
-        {
-            "openapi": "3.0.3",
-            "info": {
-                "title": "webhook-irc-relay API",
-                "version": "1.0.0",
-                "description": "Webhook ingress and IRC relay service"
-            },
-            "servers": [
-                {
-                    "url": "http://\(baseURL):8080"
-                }
-            ],
-            "paths": {
-                "/webhooks/{source}": {
-                    "post": {
-                        "summary": "Ingest and relay a webhook",
-                        "parameters": [
-                            {
-                                "name": "source",
-                                "in": "path",
-                                "required": true,
-                                "schema": { "type": "string" }
-                            },
-                            {
-                                // "name": "X-Webhook-Token", // Auth supprimée
-                                "in": "header",
-                                "required": true,
-                                "schema": { "type": "string" }
-                            }
-                        ],
-                        "requestBody": {
+    {
+        "openapi": "3.0.3",
+        "info": {
+            "title": "webhook-irc-relay API",
+            "version": "1.0.0",
+            "description": "Webhook ingress and IRC relay service"
+        },
+        "servers": [
+            {
+                "url": "http://\(baseURL):8080"
+            }
+        ],
+        "paths": {
+            "/webhooks/{source}": {
+                "post": {
+                    "summary": "Ingest and relay a webhook",
+                    "parameters": [
+                        {
+                            "name": "source",
+                            "in": "path",
                             "required": true,
+                            "schema": { "type": "string" }
+                        },
+                        {
+                            // "name": "X-Webhook-Token", // Auth supprimée
+                            "in": "header",
+                            "required": true,
+                            "schema": { "type": "string" }
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Accepted and relayed",
                             "content": {
                                 "application/json": {
                                     "schema": {
                                         "type": "object",
-                                        "additionalProperties": true
+                                        "properties": {
+                                            "status": { "type": "string" },
+                                            "source": { "type": "string" },
+                                            "eventType": { "type": "string" },
+                                            "channel": { "type": "string" }
+                                        }
                                     }
                                 }
                             }
                         },
-                        "responses": {
-                            "200": {
-                                "description": "Accepted and relayed",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "status": { "type": "string" },
-                                                "source": { "type": "string" },
-                                                "eventType": { "type": "string" },
-                                                "channel": { "type": "string" }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "400": { "description": "Invalid payload" },
-                            // "401": { "description": "Invalid token" }, // Auth supprimée
-                            "404": { "description": "Unknown source" },
-                            "503": { "description": "IRC transport unavailable" }
-                        }
+                        "400": { "description": "Invalid payload" },
+                        // "401": { "description": "Invalid token" }, // Auth supprimée
+                        "404": { "description": "Unknown source" },
+                        "503": { "description": "IRC transport unavailable" }
                     }
                 }
             }
         }
-        """
+    }
+    """
 }
 
 private func mapWebhookError(_ error: WebhookError) -> Abort {
     routesLogger.warning("Mapping webhook error", metadata: ["error": "\(error)"])
     switch error {
-    case .unknownSource(let source):
+    case let .unknownSource(source):
         return Abort(.notFound, reason: "Unknown source: \(source)")
-    case .invalidPayload(let reason):
+    case let .invalidPayload(reason):
         return Abort(.badRequest, reason: reason)
-    // case .unauthorized(let reason):
-    //     return Abort(.unauthorized, reason: reason)
+        // case .unauthorized(let reason):
+        //     return Abort(.unauthorized, reason: reason)
     }
 }
 
@@ -231,9 +241,9 @@ private func mapIRCError(_ error: IRCError) -> Abort {
     switch error {
     case .disconnected:
         return Abort(.serviceUnavailable, reason: "IRC connection unavailable")
-    case .connectionFailed(let reason):
+    case let .connectionFailed(reason):
         return Abort(.serviceUnavailable, reason: reason)
-    case .sendFailed(let reason):
+    case let .sendFailed(reason):
         return Abort(.serviceUnavailable, reason: reason)
     }
 }

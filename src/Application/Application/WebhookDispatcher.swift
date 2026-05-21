@@ -42,7 +42,8 @@ public final class WebhookDispatcher: @unchecked Sendable {
                 "source": "\(source)",
                 "payload_bytes": "\(payload.readableBytes)",
                 "request_id": "\(requestID)",
-            ])
+            ]
+        )
 
         let handler = try handlerRegistry.resolve(source)
         logger.debug("Handler resolution completed", metadata: ["source": "\(source)"])
@@ -53,12 +54,14 @@ public final class WebhookDispatcher: @unchecked Sendable {
             metadata: [
                 "source": "\(event.source)",
                 "event_type": "\(event.eventType)",
-            ])
+            ]
+        )
 
         let channel = try channelRouter.resolve(source: source)
         logger.debug(
             "Channel resolution completed",
-            metadata: ["source": "\(source)", "channel": "\(channel.rawValue)"])
+            metadata: ["source": "\(source)", "channel": "\(channel.rawValue)"]
+        )
 
         let message = IRCMessage(channel: channel, text: event.summary.sanitizedForIRC())
 
@@ -70,7 +73,8 @@ public final class WebhookDispatcher: @unchecked Sendable {
                 "event_type": "\(event.eventType)",
                 "channel": "\(channel.rawValue)",
                 "request_id": "\(requestID)",
-            ])
+            ]
+        )
 
         return (event: event, channel: channel)
     }

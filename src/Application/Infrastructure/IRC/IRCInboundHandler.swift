@@ -12,7 +12,7 @@ public final class IRCInboundHandler: ChannelInboundHandler, @unchecked Sendable
     /// Creates an inbound IRC line handler.
     /// - Parameter onLine: Callback invoked for each complete IRC line.
     public init(onLine: @escaping @Sendable (String) -> Void) {
-        self.carry = ""
+        carry = ""
         self.onLine = onLine
         logger.debug("IRC inbound handler initialized")
     }
@@ -21,7 +21,7 @@ public final class IRCInboundHandler: ChannelInboundHandler, @unchecked Sendable
     /// - Parameters:
     ///   - context: Channel context.
     ///   - data: Incoming data.
-    public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+    public func channelRead(context _: ChannelHandlerContext, data: NIOAny) {
         var buffer = unwrapInboundIn(data)
         guard let chunk = buffer.readString(length: buffer.readableBytes) else {
             logger.warning("Received unreadable IRC chunk")

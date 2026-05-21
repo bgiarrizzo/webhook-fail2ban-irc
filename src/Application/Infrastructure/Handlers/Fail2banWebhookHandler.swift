@@ -24,7 +24,8 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
                 "payload_bytes": "\(payload.readableBytes)",
                 "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
                 "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
-            ])
+            ]
+        )
         let decoded: Payload
 
         do {
@@ -64,7 +65,8 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
                 return "[Fail2ban] > \(hostname) [JAILSTOP] - \(jail)"
             default:
                 logger.warning(
-                    "Unknown Fail2ban event type", metadata: ["event_type": "\(eventType)"])
+                    "Unknown Fail2ban event type", metadata: ["event_type": "\(eventType)"]
+                )
                 return message.isEmpty ? "[Fail2ban] Event: \(eventType)" : message
             }
         }()
@@ -76,7 +78,8 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
                 "hostname": "\(hostname)",
                 "jail": "\(jail)",
                 "ip": "\(ipAddress)",
-            ])
+            ]
+        )
 
         return WebhookEvent(
             source: sourceIdentifier,

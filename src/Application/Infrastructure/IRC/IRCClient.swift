@@ -31,9 +31,9 @@ public actor IRCClient: IRCClientProtocol {
         self.channels = channels.sorted { $0.rawValue < $1.rawValue }
         self.eventLoopGroup = eventLoopGroup
         self.logger = logger
-        self.activeChannel = nil
-        self.isConnecting = false
-        self.pendingMessages = []
+        activeChannel = nil
+        isConnecting = false
+        pendingMessages = []
     }
 
     /// Starts the IRC client lifecycle.
@@ -45,7 +45,8 @@ public actor IRCClient: IRCClientProtocol {
                 "port": "\(configuration.port)",
                 "nick": "\(configuration.nick)",
                 "channels_count": "\(channels.count)",
-            ])
+            ]
+        )
         try await connectIfNeeded()
     }
 
@@ -59,13 +60,15 @@ public actor IRCClient: IRCClientProtocol {
                 "message_length": "\(message.text.count)",
                 "connected": "\(activeChannel != nil)",
                 "pending_messages": "\(pendingMessages.count)",
-            ])
+            ]
+        )
 
         if activeChannel == nil {
             pendingMessages.append(message)
             logger.info(
                 "IRC disconnected, message queued",
-                metadata: ["pending_messages": "\(pendingMessages.count)"])
+                metadata: ["pending_messages": "\(pendingMessages.count)"]
+            )
             try await connectIfNeeded()
             return
         }
@@ -75,7 +78,8 @@ public actor IRCClient: IRCClientProtocol {
         } catch {
             logger.error(
                 "IRC send failed, queueing message and reconnecting",
-                metadata: ["error": "\(error)"])
+                metadata: ["error": "\(error)"]
+            )
             pendingMessages.append(message)
             activeChannel = nil
             try await scheduleReconnect()
@@ -89,14 +93,16 @@ public actor IRCClient: IRCClientProtocol {
                 metadata: [
                     "active_channel": "\(activeChannel != nil)",
                     "is_connecting": "\(isConnecting)",
-                ])
+                ]
+            )
             return
         }
 
         isConnecting = true
         logger.notice(
             "Attempting IRC TCP connection",
-            metadata: ["host": "\(configuration.host)", "port": "\(configuration.port)"])
+            metadata: ["host": "\(configuration.host)", "port": "\(configuration.port)"]
+        )
 
         let bootstrap = ClientBootstrap(group: eventLoopGroup)
             .channelInitializer { channel in
@@ -105,7 +111,8 @@ public actor IRCClient: IRCClientProtocol {
                         Task {
                             await self.handleInboundLine(line)
                         }
-                    }))
+                    })
+                )
             }
 
         do {
@@ -156,7 +163,7 @@ public actor IRCClient: IRCClientProtocol {
 
         // Wait for server to process JOINs before announcing presence
         logger.info("Waiting for JOIN confirmations before announcing presence...")
-        try await Task.sleep(nanoseconds: 2_000_000_000)  // 2 seconds
+        try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
 
         logger.info("Announcing presence in \(channels.count) channels")
         try await announcePresence()
@@ -166,7 +173,8 @@ public actor IRCClient: IRCClientProtocol {
         let announcement = "🤖 Bot is up & running!"
         logger.info(
             "Sending presence announcement to channels",
-            metadata: ["channels": "\(channels.map { $0.rawValue }.joined(separator: ", "))"])
+            metadata: ["channels": "\(channels.map { $0.rawValue }.joined(separator: ", "))"]
+        )
 
         for channel in channels {
             do {
@@ -175,7 +183,8 @@ public actor IRCClient: IRCClientProtocol {
             } catch {
                 logger.error(
                     "Failed to announce presence",
-                    metadata: ["channel": "\(channel.rawValue)", "error": "\(error)"])
+                    metadata: ["channel": "\(channel.rawValue)", "error": "\(error)"]
+                )
             }
         }
     }
@@ -213,7 +222,7 @@ public actor IRCClient: IRCClientProtocol {
         }
 
         // Handle 001 RPL_WELCOME - server accepted our registration
-        if !isRegistered && line.contains(" 001 ") {
+        if !isRegistered, line.contains(" 001 ") {
             logger.info("Received RPL_WELCOME (001), registration complete")
             isRegistered = true
             try? await joinChannelsAndAnnounce()
@@ -226,7 +235,8 @@ public actor IRCClient: IRCClientProtocol {
             metadata: [
                 "is_connecting": "\(isConnecting)",
                 "pending_messages": "\(pendingMessages.count)",
-            ])
+            ]
+        )
         activeChannel = nil
         isRegistered = false
         if isConnecting {

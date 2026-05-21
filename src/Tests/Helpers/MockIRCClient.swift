@@ -1,5 +1,4 @@
 import Foundation
-
 @testable import webhooks2irc
 
 /// Test double that captures all outbound IRC messages.
@@ -8,7 +7,7 @@ public actor MockIRCClient: IRCClientProtocol {
 
     /// Creates a mock IRC client.
     public init() {
-        self.messages = []
+        messages = []
     }
 
     /// No-op start for tests.

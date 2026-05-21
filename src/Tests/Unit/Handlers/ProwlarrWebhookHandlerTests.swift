@@ -1,7 +1,6 @@
 import NIOCore
 import NIOHTTP1
 import Testing
-
 @testable import webhooks2irc
 
 @Suite("ProwlarrWebhookHandler tests")
@@ -11,7 +10,7 @@ struct ProwlarrWebhookHandlerTests {
         let handler = ProwlarrWebhookHandler()
         let payload = ByteBuffer(
             string:
-                "{\"eventType\":\"HealthIssue\",\"type\":\"IndexerError\",\"message\":\"timeout\",\"indexer\":{\"name\":\"Indexer-A\"}}"
+            "{\"eventType\":\"HealthIssue\",\"type\":\"IndexerError\",\"message\":\"timeout\",\"indexer\":{\"name\":\"Indexer-A\"}}"
         )
 
         let event = try await handler.handle(payload: payload, headers: HTTPHeaders())

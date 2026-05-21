@@ -24,7 +24,8 @@ public struct SonarrWebhookHandler: WebhookHandlerProtocol {
                 "payload_bytes": "\(payload.readableBytes)",
                 "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
                 "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
-            ])
+            ]
+        )
         let decoded: Payload
 
         do {
@@ -48,7 +49,8 @@ public struct SonarrWebhookHandler: WebhookHandlerProtocol {
                 "season": "\(season)",
                 "episode": "\(episode)",
                 "summary_length": "\(summary.count)",
-            ])
+            ]
+        )
 
         return WebhookEvent(
             source: sourceIdentifier,

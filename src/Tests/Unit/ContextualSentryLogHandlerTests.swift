@@ -1,6 +1,5 @@
 import Logging
 import Testing
-
 @testable import webhooks2irc
 
 @Suite("ContextualSentryLogHandler tests")
@@ -52,9 +51,11 @@ struct ContextualSentryLogHandlerTests {
         #expect(metadata["breadcrumb_1"]?.description.contains("First request breadcrumb") == true)
         #expect(
             metadata["breadcrumb_2"]?.description.contains("Another first request breadcrumb")
-                == true)
+                == true
+        )
         #expect(
-            metadata["breadcrumb_1"]?.description.contains("Second request breadcrumb") == false)
+            metadata["breadcrumb_1"]?.description.contains("Second request breadcrumb") == false
+        )
     }
 
     @Test("Falls back to global breadcrumbs when request_id has no trail")

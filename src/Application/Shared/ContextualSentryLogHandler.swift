@@ -5,7 +5,7 @@ import SwiftSentry
 /// Stores recent log records so warning and error events can carry execution breadcrumbs.
 final class BreadcrumbTrailStore: @unchecked Sendable {
     /// One breadcrumb record captured from the logging pipeline.
-    struct Entry: Sendable {
+    struct Entry {
         /// Timestamp recorded when the log entry was emitted.
         let timestamp: Date
 
@@ -31,9 +31,9 @@ final class BreadcrumbTrailStore: @unchecked Sendable {
     /// - Parameter capacity: Maximum number of entries preserved in memory.
     init(capacity: Int = 200) {
         self.capacity = capacity
-        self.entries = []
-        self.formatter = ISO8601DateFormatter()
-        self.formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        entries = []
+        formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
     }
 
     /// Appends one breadcrumb entry to the in-memory ring buffer.
@@ -57,7 +57,8 @@ final class BreadcrumbTrailStore: @unchecked Sendable {
                 label: label,
                 message: message,
                 metadata: filteredMetadata
-            ))
+            )
+        )
 
         if entries.count > capacity {
             entries.removeFirst(entries.count - capacity)
@@ -118,8 +119,8 @@ final class BreadcrumbTrailStore: @unchecked Sendable {
             .joined(separator: ",")
         let combined =
             compactMetadata.isEmpty
-            ? "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message)"
-            : "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message) | \(compactMetadata)"
+                ? "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message)"
+                : "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message) | \(compactMetadata)"
 
         if combined.count <= 180 {
             return combined
@@ -174,9 +175,9 @@ struct ContextualSentryLogHandler: LogHandler {
         self.label = label
         self.sentry = sentry
         self.breadcrumbLimit = breadcrumbLimit
-        self.baseMetadata = [:]
-        self.logLevel = level
-        self.metadataProvider = nil
+        baseMetadata = [:]
+        logLevel = level
+        metadataProvider = nil
     }
 
     /// Records one log line and forwards warning/error events to Sentry with breadcrumb metadata.
@@ -203,11 +204,13 @@ struct ContextualSentryLogHandler: LogHandler {
 
         let breadcrumbMetadata =
             level >= .warning
-            ? Self.breadcrumbStore.metadataForEvent(
-                metadata: mergedMetadata, limit: breadcrumbLimit)
-            : [:]
+                ? Self.breadcrumbStore.metadataForEvent(
+                    metadata: mergedMetadata, limit: breadcrumbLimit
+                )
+                : [:]
         let enrichedMetadata = mergedMetadata.merging(
-            breadcrumbMetadata, uniquingKeysWith: { current, _ in current })
+            breadcrumbMetadata, uniquingKeysWith: { current, _ in current }
+        )
         let normalizedMetadata = Self.normalizeMetadataForSentry(enrichedMetadata)
 
         Self.breadcrumbStore.record(

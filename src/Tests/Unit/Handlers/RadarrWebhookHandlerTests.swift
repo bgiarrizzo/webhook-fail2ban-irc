@@ -1,7 +1,6 @@
 import NIOCore
 import NIOHTTP1
 import Testing
-
 @testable import webhooks2irc
 
 @Suite("RadarrWebhookHandler tests")
@@ -11,7 +10,7 @@ struct RadarrWebhookHandlerTests {
         let handler = RadarrWebhookHandler()
         let payload = ByteBuffer(
             string:
-                "{\"eventType\":\"MovieAdded\",\"movie\":{\"title\":\"Dune\",\"year\":2021,\"tmdbId\":438631}}"
+            "{\"eventType\":\"MovieAdded\",\"movie\":{\"title\":\"Dune\",\"year\":2021,\"tmdbId\":438631}}"
         )
 
         let event = try await handler.handle(payload: payload, headers: HTTPHeaders())
@@ -20,6 +19,7 @@ struct RadarrWebhookHandlerTests {
         #expect(event.eventType == "movieadded")
         #expect(
             event.summary
-                == "[Radarr] Film ajoute : Dune (2021) - https://www.themoviedb.org/movie/438631")
+                == "[Radarr] Film ajoute : Dune (2021) - https://www.themoviedb.org/movie/438631"
+        )
     }
 }

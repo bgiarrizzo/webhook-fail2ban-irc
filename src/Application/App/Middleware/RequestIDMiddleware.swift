@@ -21,7 +21,8 @@ public struct RequestIDMiddleware: AsyncMiddleware {
         request.logger[metadataKey: "method"] = .string(request.method.string)
         request.logger[metadataKey: "path"] = .string(request.url.path)
         request.logger[metadataKey: "remote_address"] = .string(
-            request.remoteAddress?.description ?? "unknown")
+            request.remoteAddress?.description ?? "unknown"
+        )
 
         request.logger.info(
             "Incoming request",
@@ -29,7 +30,8 @@ public struct RequestIDMiddleware: AsyncMiddleware {
                 "request_id_source": incomingRequestID == nil ? "generated" : "header",
                 "query": "\(request.url.query ?? "")",
                 "user_agent": "\(request.headers.first(name: .userAgent) ?? "unknown")",
-            ])
+            ]
+        )
 
         do {
             let response = try await next.respond(to: request)
@@ -41,7 +43,8 @@ public struct RequestIDMiddleware: AsyncMiddleware {
                 metadata: [
                     "status": "\(response.status.code)",
                     "duration_ms": "\(elapsedMs)",
-                ])
+                ]
+            )
             return response
         } catch {
             let elapsedMs = (DispatchTime.now().uptimeNanoseconds - startedAt) / 1_000_000
@@ -50,7 +53,8 @@ public struct RequestIDMiddleware: AsyncMiddleware {
                 metadata: [
                     "duration_ms": "\(elapsedMs)",
                     "error": "\(error)",
-                ])
+                ]
+            )
             throw error
         }
     }

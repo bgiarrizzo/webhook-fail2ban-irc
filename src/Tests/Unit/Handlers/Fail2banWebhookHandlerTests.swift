@@ -1,7 +1,6 @@
 import NIOCore
 import NIOHTTP1
 import Testing
-
 @testable import webhooks2irc
 
 @Suite("Fail2banWebhookHandler tests")
@@ -10,7 +9,8 @@ struct Fail2banWebhookHandlerTests {
     func mapsPayload() async throws {
         let handler = Fail2banWebhookHandler()
         let payload = ByteBuffer(
-            string: "{\"type\":\"ban\",\"ip\":\"203.0.113.10\",\"jail\":\"sshd\"}")
+            string: "{\"type\":\"ban\",\"ip\":\"203.0.113.10\",\"jail\":\"sshd\"}"
+        )
 
         let event = try await handler.handle(payload: payload, headers: HTTPHeaders())
 

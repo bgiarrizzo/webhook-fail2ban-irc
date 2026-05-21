@@ -31,11 +31,13 @@ public final class ProcessWebhookUseCase: @unchecked Sendable {
                 "source": "\(source)",
                 "payload_bytes": "\(payload.readableBytes)",
                 "request_id": "\(requestID)",
-            ])
+            ]
+        )
 
         do {
             let outcome = try await dispatcher.dispatch(
-                source: source, payload: payload, headers: headers)
+                source: source, payload: payload, headers: headers
+            )
             logger.info(
                 "Use case execution completed",
                 metadata: [
@@ -43,7 +45,8 @@ public final class ProcessWebhookUseCase: @unchecked Sendable {
                     "event_type": "\(outcome.event.eventType)",
                     "channel": "\(outcome.channel.rawValue)",
                     "request_id": "\(requestID)",
-                ])
+                ]
+            )
             return outcome
         } catch {
             logger.error(
@@ -52,7 +55,8 @@ public final class ProcessWebhookUseCase: @unchecked Sendable {
                     "source": "\(source)",
                     "request_id": "\(requestID)",
                     "error": "\(error)",
-                ])
+                ]
+            )
             throw error
         }
     }

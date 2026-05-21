@@ -1,7 +1,7 @@
 import Logging
 import Vapor
 
-/// Holds all runtime configuration required by the relay service.
+// Holds all runtime configuration required by the relay service.
 
 public struct AppConfiguration: Sendable {
     /// IRC connection settings.
@@ -34,7 +34,8 @@ public struct AppConfiguration: Sendable {
     public static func load(from environment: Environment) -> AppConfiguration {
         appConfigurationLogger.info(
             "Loading application configuration",
-            metadata: ["environment": "\(environment.name)"])
+            metadata: ["environment": "\(environment.name)"]
+        )
 
         let seedbox = Environment.get("IRC_CHANNEL_SEEDBOX") ?? "#seedbox"
         let git = Environment.get("IRC_CHANNEL_GIT") ?? "#git"
@@ -67,7 +68,8 @@ public struct AppConfiguration: Sendable {
                 "irc_password_configured": "\(password?.isEmpty == false)",
                 "swagger_enabled": "\(swaggerEnabled)",
                 "routes_count": "\(routes.count)",
-            ])
+            ]
+        )
 
         return AppConfiguration(
             irc: IRCConnectionConfiguration(host: host, port: port, nick: nick, password: password),
@@ -92,7 +94,8 @@ private func parseBool(_ raw: String?) -> Bool? {
     default:
         appConfigurationLogger.warning(
             "Invalid boolean configuration value",
-            metadata: ["raw": "\(raw)"])
+            metadata: ["raw": "\(raw)"]
+        )
         return nil
     }
 }

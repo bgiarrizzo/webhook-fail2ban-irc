@@ -21,7 +21,8 @@ public func configure(
             "irc_password_configured": "\(configuration.irc.password?.isEmpty == false)",
             "swagger_enabled": "\(configuration.swaggerEnabled)",
             "channel_routes_count": "\(configuration.channelRoutes.count)",
-        ])
+        ]
+    )
 
     let handlerRegistry = HandlerRegistry()
     handlerRegistry.register(BazarrWebhookHandler())

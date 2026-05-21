@@ -24,7 +24,8 @@ public struct RadarrWebhookHandler: WebhookHandlerProtocol {
                 "payload_bytes": "\(payload.readableBytes)",
                 "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
                 "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
-            ])
+            ]
+        )
         let decoded: Payload
 
         do {
@@ -45,7 +46,8 @@ public struct RadarrWebhookHandler: WebhookHandlerProtocol {
                 "event_type": "\(eventType)",
                 "title": "\(title)",
                 "year": "\(year)",
-            ])
+            ]
+        )
 
         return WebhookEvent(
             source: sourceIdentifier,

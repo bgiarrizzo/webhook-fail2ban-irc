@@ -4,11 +4,11 @@ import Logging
 private let ircSanitizeLogger = Logger(label: "webhooks2irc.shared.irc-sanitize")
 
 /// Sanitization helpers for safely sending messages to IRC.
-extension String {
+public extension String {
     /// Removes IRC control characters and limits output length.
     /// - Parameter maximumLength: Maximum allowed output length.
     /// - Returns: Sanitized IRC-safe text.
-    public func sanitizedForIRC(maximumLength: Int = 400) -> String {
+    func sanitizedForIRC(maximumLength: Int = 400) -> String {
         let originalLength = count
         let filteredScalars = unicodeScalars.filter { scalar in
             if scalar.value == 10 || scalar.value == 13 {
@@ -32,7 +32,8 @@ extension String {
                         "original_length": "\(originalLength)",
                         "sanitized_length": "\(sanitized.count)",
                         "truncated": "false",
-                    ])
+                    ]
+                )
             }
             return sanitized
         }
@@ -43,7 +44,8 @@ extension String {
                 "original_length": "\(originalLength)",
                 "sanitized_length": "\(sanitized.count)",
                 "maximum_length": "\(maximumLength)",
-            ])
+            ]
+        )
         return String(sanitized.prefix(maximumLength))
     }
 }

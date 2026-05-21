@@ -1,6 +1,5 @@
 import Testing
 import VaporTesting
-
 @testable import webhooks2irc
 
 @Suite("App Tests")
@@ -21,7 +20,8 @@ struct webhooks2ircTests {
                 afterResponse: { res async in
                     #expect(res.status == .ok)
                     #expect(res.body.string == "webhook-irc-relay")
-                })
+                }
+            )
         }
     }
 }

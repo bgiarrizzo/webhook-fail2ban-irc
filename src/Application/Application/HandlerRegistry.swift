@@ -9,7 +9,7 @@ public final class HandlerRegistry: @unchecked Sendable {
 
     /// Creates an empty handler registry.
     public init() {
-        self.handlers = [:]
+        handlers = [:]
         logger.debug("Handler registry initialized")
     }
 
@@ -22,7 +22,8 @@ public final class HandlerRegistry: @unchecked Sendable {
         handlers[source] = handler
         logger.info(
             "Handler registered",
-            metadata: ["source": "\(source)", "registered_handlers": "\(handlers.count)"])
+            metadata: ["source": "\(source)", "registered_handlers": "\(handlers.count)"]
+        )
     }
 
     /// Resolves a handler for a source.
@@ -38,7 +39,8 @@ public final class HandlerRegistry: @unchecked Sendable {
                 "Handler not found for source",
                 metadata: [
                     "source": "\(normalizedSource)", "registered_handlers": "\(handlers.count)",
-                ])
+                ]
+            )
             throw WebhookError.unknownSource(source)
         }
 

@@ -24,7 +24,8 @@ public struct BazarrWebhookHandler: WebhookHandlerProtocol {
                 "payload_bytes": "\(payload.readableBytes)",
                 "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
                 "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
-            ])
+            ]
+        )
         let decoded: Payload
 
         do {
@@ -39,7 +40,8 @@ public struct BazarrWebhookHandler: WebhookHandlerProtocol {
         let summary = buildSummary(for: decoded, eventType: eventType)
         logger.info(
             "Bazarr payload normalized",
-            metadata: ["event_type": "\(eventType)", "summary_length": "\(summary.count)"])
+            metadata: ["event_type": "\(eventType)", "summary_length": "\(summary.count)"]
+        )
 
         return WebhookEvent(
             source: sourceIdentifier,

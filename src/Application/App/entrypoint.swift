@@ -16,10 +16,18 @@ enum Entrypoint {
         let appVersion: String = Environment.process.APP_VERSION ?? "unknown"
         // Get Sentry DSN
         let sentryDsn: String = Environment.process.SENTRY_DSN ?? ""
+        // Get Server Name
+        let serverName: String = Environment.process.SERVER_NAME ?? Sentry.getHostname()
 
         let sentry: Sentry? =
             sentryDsn.isEmpty
-            ? nil : try Sentry(dsn: sentryDsn, release: appVersion, environment: envName)
+                ? nil
+                : try Sentry(
+                    dsn: sentryDsn,
+                    servername: serverName,
+                    release: appVersion,
+                    environment: envName
+                )
 
         let loggerLevel: Logger.Level = try Logger.Level.detect(from: &environment)
 
@@ -29,11 +37,12 @@ enum Entrypoint {
             // Add Sentry log handler in release builds if SENTRY_DSN is provided
             if let sentry: Sentry = sentry {
                 logHandlers.append(
-                    ContextualSentryLogHandler(label: label, sentry: sentry, level: .warning))
+                    ContextualSentryLogHandler(label: label, sentry: sentry, level: .warning)
+                )
             }
 
             // Always add console log handler for local development and visibility
-            let console: Terminal = Terminal()
+            let console = Terminal()
             logHandlers.append(ConsoleLogger(label: label, console: console, level: loggerLevel))
 
             return MultiplexLogHandler(logHandlers)
@@ -47,7 +56,8 @@ enum Entrypoint {
                 "app_version": "\(appVersion)",
                 "sentry_enabled": "\(!sentryDsn.isEmpty)",
                 "log_level": "\(loggerLevel.rawValue)",
-            ])
+            ]
+        )
 
         // Configure and run the application, ensuring proper shutdown and error handling
         do {
@@ -59,7 +69,8 @@ enum Entrypoint {
         } catch {
             application.logger.error(
                 "Application execution failed",
-                metadata: ["error": "\(error)"])
+                metadata: ["error": "\(error)"]
+            )
             application.logger.report(error: error)
             try? await application.asyncShutdown()
             try? await sentry?.shutdown()

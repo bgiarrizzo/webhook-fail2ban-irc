@@ -1,7 +1,6 @@
 import NIOCore
 import NIOHTTP1
 import Testing
-
 @testable import webhooks2irc
 
 @Suite("WebhookDispatcher tests")
@@ -12,7 +11,7 @@ struct WebhookDispatcherTests {
         registry.register(TestWebhookHandler())
 
         let router = IRCChannelRouter(routes: [
-            "radarr": IRCChannel(rawValue: "#seedbox")
+            "radarr": IRCChannel(rawValue: "#seedbox"),
         ])
 
         let mockClient = MockIRCClient()
@@ -24,7 +23,8 @@ struct WebhookDispatcherTests {
 
         let payload = ByteBuffer(string: "{\"eventType\":\"download\"}")
         let result = try await dispatcher.dispatch(
-            source: "radarr", payload: payload, headers: HTTPHeaders())
+            source: "radarr", payload: payload, headers: HTTPHeaders()
+        )
         let messages = await mockClient.capturedMessages()
 
         #expect(result.channel.rawValue == "#seedbox")

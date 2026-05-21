@@ -24,7 +24,8 @@ public struct ProwlarrWebhookHandler: WebhookHandlerProtocol {
                 "payload_bytes": "\(payload.readableBytes)",
                 "request_id": "\(headers.first(name: "X-Request-Id") ?? "unknown")",
                 "content_type": "\(headers.first(name: .contentType) ?? "unknown")",
-            ])
+            ]
+        )
         let decoded: Payload
 
         do {
@@ -44,7 +45,8 @@ public struct ProwlarrWebhookHandler: WebhookHandlerProtocol {
                 "event_type": "\(eventType)",
                 "indexer": "\(indexer)",
                 "summary_length": "\(summary.count)",
-            ])
+            ]
+        )
 
         return WebhookEvent(
             source: sourceIdentifier,

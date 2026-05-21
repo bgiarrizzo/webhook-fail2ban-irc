@@ -119,8 +119,8 @@ final class BreadcrumbTrailStore: @unchecked Sendable {
             .joined(separator: ",")
         let combined =
             compactMetadata.isEmpty
-                ? "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message)"
-                : "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message) | \(compactMetadata)"
+            ? "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message)"
+            : "\(timestamp) | \(entry.level.rawValue) | \(entry.label) | \(entry.message) | \(compactMetadata)"
 
         if combined.count <= 180 {
             return combined
@@ -180,34 +180,22 @@ struct ContextualSentryLogHandler: LogHandler {
         metadataProvider = nil
     }
 
-    /// Records one log line and forwards warning/error events to Sentry with breadcrumb metadata.
-    /// - Parameters:
-    ///   - level: Log level.
-    ///   - message: Log message.
-    ///   - metadata: Inline metadata.
-    ///   - source: Log source.
-    ///   - file: Source file.
-    ///   - function: Source function.
-    ///   - line: Source line.
-    func log(
-        level: Logger.Level,
-        message: Logger.Message,
-        metadata: Logger.Metadata?,
-        source: String,
-        file: String,
-        function: String,
-        line: UInt
-    ) {
+    /// Records one log event and forwards warning/error events to Sentry with breadcrumb metadata.
+    /// - Parameter event: Structured SwiftLog event payload.
+    func log(event: Logging.LogEvent) {
+        let level = event.level
+        let message = event.message
+        let metadata = event.metadata
         let mergedMetadata = (metadata ?? [:])
             .merging(baseMetadata, uniquingKeysWith: { current, _ in current })
             .merging(metadataProvider?.get() ?? [:], uniquingKeysWith: { current, _ in current })
 
         let breadcrumbMetadata =
             level >= .warning
-                ? Self.breadcrumbStore.metadataForEvent(
-                    metadata: mergedMetadata, limit: breadcrumbLimit
-                )
-                : [:]
+            ? Self.breadcrumbStore.metadataForEvent(
+                metadata: mergedMetadata, limit: breadcrumbLimit
+            )
+            : [:]
         let enrichedMetadata = mergedMetadata.merging(
             breadcrumbMetadata, uniquingKeysWith: { current, _ in current }
         )
@@ -220,15 +208,15 @@ struct ContextualSentryLogHandler: LogHandler {
             metadata: mergedMetadata
         )
 
-        var handler = SentryLogHandler(label: label, sentry: sentry, level: logLevel)
+        let handler = SentryLogHandler(label: label, sentry: sentry, level: logLevel)
         handler.log(
             level: level,
             message: message,
             metadata: normalizedMetadata,
-            source: source,
-            file: file,
-            function: function,
-            line: line
+            source: event.source,
+            file: event.file,
+            function: event.function,
+            line: event.line
         )
     }
 

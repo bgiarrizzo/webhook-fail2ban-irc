@@ -18,7 +18,7 @@ public struct RequestIDMiddleware: AsyncMiddleware {
         let incomingRequestID = request.headers.first(name: "X-Request-Id")
         let requestID = request.headers.first(name: "X-Request-Id") ?? UUID().uuidString
         request.logger[metadataKey: "request_id"] = .string(requestID)
-        request.logger[metadataKey: "method"] = .string(request.method.string)
+        request.logger[metadataKey: "method"] = .string(request.method.rawValue)
         request.logger[metadataKey: "path"] = .string(request.url.path)
         request.logger[metadataKey: "remote_address"] = .string(
             request.remoteAddress?.description ?? "unknown"

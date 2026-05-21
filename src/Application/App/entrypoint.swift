@@ -28,7 +28,8 @@ enum Entrypoint {
 
             // Add Sentry log handler in release builds if SENTRY_DSN is provided
             if let sentry: Sentry = sentry {
-                logHandlers.append(SentryLogHandler(label: label, sentry: sentry, level: .warning))
+                logHandlers.append(
+                    ContextualSentryLogHandler(label: label, sentry: sentry, level: .warning))
             }
 
             // Always add console log handler for local development and visibility

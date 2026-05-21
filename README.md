@@ -16,6 +16,7 @@ Swift/Vapor webhook relay that normalizes incoming events and forwards them to I
 - Every request receives or propagates an X-Request-Id header.
 - Logs include request and troubleshooting context such as source, event type, payload size, user agent, remote address, IRC channel, and transport state.
 - Warning and error logs can be forwarded to Sentry through SwiftSentry while console logging remains enabled.
+- Warning and error events sent to Sentry are enriched with a short in-memory breadcrumb trail built from recent application logs, scoped by request_id when available.
 - IRC connection lifecycle events are logged, including connect, handshake, JOIN, disconnect, reconnect, queueing, and message flush.
 
 Swagger/OpenAPI exposure policy:

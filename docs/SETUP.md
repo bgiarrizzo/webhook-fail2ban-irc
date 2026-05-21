@@ -16,6 +16,8 @@ Sentry activation rules:
 - Sentry receives log events at warning level or higher.
 - Console logging remains enabled even when Sentry is active.
 - Sentry events are enriched indirectly through structured log metadata such as request_id, source, event_type, payload_bytes, IRC channel, and transport errors.
+- Sentry warning/error events also include a short breadcrumb trail reconstructed from recent local logs to speed up root-cause analysis.
+- Metadata keys forwarded to Sentry are normalized and prefixed with `ctx_` for easier tag filtering and dashboard queries.
 
 Example:
 - `export SENTRY_DSN='https://<public_key>@o0.ingest.sentry.io/<project_id>'`

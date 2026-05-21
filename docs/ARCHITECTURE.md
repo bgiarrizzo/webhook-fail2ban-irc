@@ -38,6 +38,8 @@
 - Shutdown path calls `sentry.shutdown()` to flush buffered events.
 - Application logs are structured and emitted from all active layers: bootstrap, middleware, routes, use case, dispatcher, registry, router, handlers, and IRC transport.
 - Request metadata includes request_id, method, path, remote address, content type, user agent, payload size, source, event type, and target IRC channel when available.
+- Warning and error events forwarded to Sentry are enriched with recent breadcrumbs from the local logging pipeline, using request_id scoping when available and a global fallback otherwise.
+- Metadata keys sent to Sentry are normalized to lowercase and prefixed with `ctx_` to keep filtering consistent across environments.
 - IRC transport logs include connection attempts, handshake, JOIN flow, inbound framing, disconnects, reconnect scheduling, message queueing, and queue flush.
 
 ## Runtime resilience

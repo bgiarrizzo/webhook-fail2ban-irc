@@ -1,5 +1,5 @@
 {
-  "originHash" : "0dd9d0df3a682094f9c2c46785595293283bde3af9fcc5c86766575b107dd8d4",
+  "originHash" : "978fe61ac19605e5ea5da9cb77373aa783c36bbdeab18951c664d9faf39adc31",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -26,6 +26,24 @@
       "state" : {
         "revision" : "32ad16dfc7677b927b225595ed18f3debb32f577",
         "version" : "4.16.0"
+      }
+    },
+    {
+      "identity" : "generic-json",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Frizlab/generic-json.git",
+      "state" : {
+        "revision" : "1546c2a3ad995f2c7c6479cf9e8cb9ebb80a2578",
+        "version" : "3.1.3"
+      }
+    },
+    {
+      "identity" : "json-logger",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/xcode-actions/json-logger.git",
+      "state" : {
+        "revision" : "6056e4438fb0e07caa44a7bc11d645b6c33bfb96",
+        "version" : "1.0.0"
       }
     },
     {
@@ -166,7 +184,7 @@
     {
       "identity" : "swift-nio-extras",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-nio-extras",
+      "location" : "https://github.com/apple/swift-nio-extras.git",
       "state" : {
         "revision" : "5a48717e29f62cb8326d6d42e46b562ca93847a6",
         "version" : "1.34.0"

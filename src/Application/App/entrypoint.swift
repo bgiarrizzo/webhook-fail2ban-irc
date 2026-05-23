@@ -1,3 +1,4 @@
+import JSONLogger
 import Logging
 import NIOCore
 import NIOPosix
@@ -21,13 +22,13 @@ enum Entrypoint {
 
         let sentry: Sentry? =
             sentryDsn.isEmpty
-                ? nil
-                : try Sentry(
-                    dsn: sentryDsn,
-                    servername: serverName,
-                    release: appVersion,
-                    environment: envName
-                )
+            ? nil
+            : try Sentry(
+                dsn: sentryDsn,
+                servername: serverName,
+                release: appVersion,
+                environment: envName
+            )
 
         let loggerLevel: Logger.Level = try Logger.Level.detect(from: &environment)
 
@@ -41,9 +42,10 @@ enum Entrypoint {
                 )
             }
 
-            // Always add console log handler for local development and visibility
-            let console = Terminal()
-            logHandlers.append(ConsoleLogger(label: label, console: console, level: loggerLevel))
+            // Always add JSON logger handler for structured logs as JSONSeq stream.
+            var jsonLogger = JSONLogger.initForJSONSeq(label: label)
+            jsonLogger.logLevel = loggerLevel
+            logHandlers.append(jsonLogger)
 
             return MultiplexLogHandler(logHandlers)
         }

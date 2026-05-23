@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "webhooks2irc",
     platforms: [
-        .macOS(.v13),
+        .macOS(.v13)
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
@@ -15,6 +15,8 @@ let package = Package(
         .package(url: "https://github.com/vapor/swift-openapi-vapor.git", from: "1.0.1"),
         // Sentry SDK for swift
         .package(url: "https://github.com/petrpavlik/swift-sentry.git", from: "1.0.0"),
+        // JSON logger backend for SwiftLog
+        .package(url: "https://github.com/xcode-actions/json-logger.git", from: "1.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -26,6 +28,7 @@ let package = Package(
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
                 .product(name: "SwiftSentry", package: "swift-sentry"),
+                .product(name: "JSONLogger", package: "json-logger"),
             ],
             path: "Application",
             sources: ["App", "Domain", "Application", "Infrastructure", "Shared"],
@@ -45,6 +48,6 @@ let package = Package(
 
 var swiftSettings: [SwiftSetting] {
     [
-        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("ExistentialAny")
     ]
 }

@@ -14,7 +14,7 @@ Sentry activation rules:
 - Sentry is initialized only when the process runs in release mode.
 - If `SENTRY_DSN` is missing or empty, the app continues without Sentry.
 - Sentry receives log events at warning level or higher.
-- Console logging remains enabled even when Sentry is active.
+- JSON logging remains enabled even when Sentry is active.
 - Sentry events are enriched indirectly through structured log metadata such as request_id, source, event_type, payload_bytes, IRC channel, and transport errors.
 - Sentry warning/error events also include a short breadcrumb trail reconstructed from recent local logs to speed up root-cause analysis.
 - Metadata keys forwarded to Sentry are normalized and prefixed with `ctx_` for easier tag filtering and dashboard queries.
@@ -55,6 +55,7 @@ Default behavior:
 - Send an `X-Request-Id` header from upstream systems when possible to correlate their traces with API and Sentry logs.
 - If no `X-Request-Id` is provided, the middleware generates one and echoes it back in the response.
 - Increase the process log level to inspect route execution, webhook normalization, and IRC transport state transitions.
+- Runtime logs are emitted as JSONSeq (RFC 7464), suitable for streaming ingestion.
 
 ## Run tests
 1. swift test

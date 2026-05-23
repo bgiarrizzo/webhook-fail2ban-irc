@@ -4,6 +4,9 @@
 # update_date: 2024-05-05
 # documentation: https://git-scm.com/docs/gitignore
 
+docs/*_TEMPLATE.md
+docs/ADR/*_TEMPLATE.md
+
 # Created by https://www.toptal.com/developers/gitignore/api/go,vim,rust,swift,vapor,xcode,python,swiftpm,visualstudiocode,swiftpackagemanager,lua
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,vim,rust,swift,vapor,xcode,python,swiftpm,visualstudiocode,swiftpackagemanager,lua
 

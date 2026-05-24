@@ -48,15 +48,9 @@ public struct Fail2banWebhookHandler: WebhookHandlerProtocol {
         let summary: String = {
             switch eventType {
             case "ban":
-                if hostname == "unknown" && bantime == 0 && failures == 0 {
-                    return "[Fail2ban] IP bannie : \(ipAddress) (jail: \(jail))"
-                }
                 return
                     "[Fail2ban] > \(hostname) [BAN] - [Jail : \(jail)] => IP: `\(ipAddress)` (https://db-ip.com/\(ipAddress)) for \(bantime) hours after **\(failures)** failure(s)."
             case "unban":
-                if hostname == "unknown" {
-                    return "[Fail2ban] IP debannie : \(ipAddress) (jail: \(jail))"
-                }
                 return
                     "[Fail2ban] > \(hostname) [UNBAN] - [Jail : \(jail)] => IP: `\(ipAddress)` (https://db-ip.com/\(ipAddress))"
             case "jailstart":

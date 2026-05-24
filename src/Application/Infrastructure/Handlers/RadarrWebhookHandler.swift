@@ -70,56 +70,56 @@ public struct RadarrWebhookHandler: WebhookHandlerProtocol {
         case "movieadded":
             let tmdbID = payload.movie?.tmdbId.map(String.init) ?? "Unknown"
             let tmdbURL = "https://www.themoviedb.org/movie/\(tmdbID)"
-            return "[Radarr] Film ajoute : \(title) (\(year)) - \(tmdbURL)"
+            return "[Radarr] Added Movie : \(title) (\(year)) - \(tmdbURL)"
         case "moviedelete":
-            return "[Radarr] Film supprime : \(title)"
+            return "[Radarr] Deleted Movie : \(title)"
         case "moviedeletedforupgrade":
             let fileName = payload.movieFile?.relativePath ?? "Unknown"
-            return "[Radarr] Film supprime pour upgrade : \(title) - \(fileName)"
+            return "[Radarr] Deleted Movie for Upgrade : \(title) - \(fileName)"
         case "movieimported":
             let tmdbID = payload.movie?.tmdbId.map(String.init) ?? "Unknown"
             let tmdbURL = "https://www.themoviedb.org/movie/\(tmdbID)"
-            return "[Radarr] Film importe : \(title) (\(year)) - \(tmdbURL)"
+            return "[Radarr] Imported Movie : \(title) (\(year)) - \(tmdbURL)"
         case "download":
             let client = payload.downloadClient ?? "Unknown"
             let source = payload.source ?? "Unknown"
             let quality = payload.quality?.quality ?? "Unknown"
             let size = gigabytesString(bytes: payload.size)
             return
-                "[Radarr] Telechargement : \(title) via \(client) depuis \(source) - \(quality) - Taille = \(size)"
+                "[Radarr] Download : \(title) via \(client) from \(source) - \(quality) - Size = \(size)"
         case "grab":
             let indexer = payload.release?.indexer ?? "Unknown"
             let releaseTitle = payload.release?.releaseTitle ?? "Unknown"
             let quality = payload.release?.quality ?? "Unknown"
             let size = gigabytesString(bytes: payload.release?.size)
             return
-                "[Radarr] Grab : \(title) depuis \(indexer) - ReleaseTitle = \(releaseTitle) - \(quality) - Taille = \(size)"
+                "[Radarr] Grab : \(title) from \(indexer) - ReleaseTitle = \(releaseTitle) - \(quality) - Size = \(size)"
         case "health":
             let issueType = payload.type ?? "Unknown"
             let message = payload.message ?? "No message"
-            return "[Radarr] Probleme de sante - \(issueType) : \(message)"
+            return "[Radarr] Health Issue - \(issueType) : \(message)"
         case "healthrestored":
             let issueType = payload.type ?? "Unknown"
             let message = payload.message ?? "No message"
-            return "[Radarr] Sante restauree - \(issueType) : \(message)"
+            return "[Radarr] Health Restored - \(issueType) : \(message)"
         case "manualinteractionrequired":
-            return "[Radarr] Interaction manuelle requise : \(payload.message ?? "No message")"
+            return "[Radarr] Manual Interaction Required : \(payload.message ?? "No message")"
         case "applicationupdate":
             let previous = payload.previousVersion ?? "Unknown"
             let new = payload.newVersion ?? "Unknown"
-            return "[Radarr] Mise a jour : \(previous) -> \(new)"
+            return "[Radarr] Application Update : \(previous) -> \(new)"
         case "rename":
             return
-                "[Radarr] Renomme : \(payload.oldPath ?? "Unknown") -> \(payload.newPath ?? "Unknown")"
+                "[Radarr] Renamed : \(payload.oldPath ?? "Unknown") -> \(payload.newPath ?? "Unknown")"
         case "upgrade":
             let tmdbID = payload.movie?.tmdbId.map(String.init) ?? "Unknown"
             let tmdbURL = "https://www.themoviedb.org/movie/\(tmdbID)"
-            return "[Radarr] Film upgrade : \(title) (\(year)) - \(tmdbURL)"
+            return "[Radarr] Movie Upgrade : \(title) (\(year)) - \(tmdbURL)"
         case "test":
-            return "[Radarr] Test message"
+            return "[Radarr] Test Message : \(payload.message ?? "No message")"
         default:
             logger.warning("Unknown Radarr event type", metadata: ["event_type": "\(eventType)"])
-            return "[Radarr] Evenement inconnu : \(eventType)"
+            return "[Radarr] Unknown Event : \(eventType)"
         }
     }
 

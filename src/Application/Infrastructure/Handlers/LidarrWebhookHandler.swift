@@ -73,49 +73,49 @@ public struct LidarrWebhookHandler: WebhookHandlerProtocol {
             if let albums = payload.albums, albums.isEmpty == false {
                 let titles = albums.compactMap { $0.title }
                 let joined = titles.isEmpty ? album : titles.joined(separator: " & ")
-                return "[Lidarr] Album ajoute : \(joined) - \(artist) (\(year))"
+                return "[Lidarr] Added Album : \(joined) - \(artist) (\(year))"
             }
-            return "[Lidarr] Album ajoute : \(artist) - \(album)"
+            return "[Lidarr] Added Album : \(artist) - \(album)"
         case "albumdelete":
-            return "[Lidarr] Album supprime : \(artist) - \(album) (\(year))"
+            return "[Lidarr] Deleted Album : \(artist) - \(album) (\(year))"
         case "albumdeletedforupgrade":
             let file = payload.albumFile?.relativePath ?? "Unknown"
-            return "[Lidarr] Album supprime pour upgrade : \(album) - \(artist) - \(file)"
+            return "[Lidarr] Album Deleted for Upgrade : \(album) - \(artist) - \(file)"
         case "albumimported":
-            return "[Lidarr] Album importe : \(artist) - \(album) (\(year))"
+            return "[Lidarr] Album Imported : \(artist) - \(album) (\(year))"
         case "applicationupdate":
             let previous = payload.previousVersion ?? "Unknown"
             let new = payload.newVersion ?? "Unknown"
-            return "[Lidarr] Mise a jour : \(previous) -> \(new)"
+            return "[Lidarr] Application Update : \(previous) -> \(new)"
         case "artistadd":
-            return "[Lidarr] Artiste ajoute : \(artist)"
+            return "[Lidarr] Artist Added : \(artist)"
         case "artistdelete":
-            return "[Lidarr] Artiste supprime : \(artist)"
+            return "[Lidarr] Artist Deleted : \(artist)"
         case "download":
             let title = resolveAlbumTitles(from: payload)
-            return "[Lidarr] Telechargement : \(title) - \(artist)"
+            return "[Lidarr] Download : \(title) - \(artist)"
         case "grab":
             let releaseTitle = payload.release?.releaseTitle ?? "Unknown"
             let quality = payload.release?.quality ?? "Unknown"
             let size = gigabytesString(bytes: payload.release?.size)
             let title = resolveAlbumTitles(from: payload)
             return
-                "[Lidarr] Grab : \(title) - \(artist) - ReleaseTitle = \(releaseTitle) - \(quality) - Taille = \(size)"
+                "[Lidarr] Grab : \(title) - \(artist) - ReleaseTitle = \(releaseTitle) - \(quality) - Size = \(size)"
         case "health", "healthissue":
             let issueType = payload.type ?? "Unknown"
             let message = payload.message ?? "No message"
-            return "[Lidarr] Probleme de sante - \(issueType) : \(message)"
+            return "[Lidarr] Health Issue - \(issueType) : \(message)"
         case "healthrestored":
             let issueType = payload.type ?? "Unknown"
             let message = payload.message ?? "No message"
-            return "[Lidarr] Sante restauree - \(issueType) : \(message)"
+            return "[Lidarr] Health Restored - \(issueType) : \(message)"
         case "importfailure":
-            return "[Lidarr] Echec import"
+            return "[Lidarr] Import Failure : \(artist) - \(album) (\(year))"
         case "manualinteractionrequired":
-            return "[Lidarr] Interaction manuelle requise : \(payload.message ?? "No message")"
+            return "[Lidarr] Manual Interaction Required : \(payload.message ?? "No message")"
         case "rename":
             return
-                "[Lidarr] Renomme : \(payload.oldPath ?? "Unknown") -> \(payload.newPath ?? "Unknown")"
+                "[Lidarr] Rename : \(payload.oldPath ?? "Unknown") -> \(payload.newPath ?? "Unknown")"
         case "retag":
             return "[Lidarr] Retag : \(payload.trackFile?.path ?? "Unknown")"
         case "upgraded":
@@ -124,7 +124,7 @@ public struct LidarrWebhookHandler: WebhookHandlerProtocol {
             return "[Lidarr] Test message"
         default:
             logger.warning("Unknown Lidarr event type", metadata: ["event_type": "\(eventType)"])
-            return "[Lidarr] Evenement inconnu : \(eventType)"
+            return "[Lidarr] Unknown Event : \(eventType)"
         }
     }
 

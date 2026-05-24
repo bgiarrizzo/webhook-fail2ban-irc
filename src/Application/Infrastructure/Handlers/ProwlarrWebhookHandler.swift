@@ -67,35 +67,35 @@ public struct ProwlarrWebhookHandler: WebhookHandlerProtocol {
         case "applicationupdate":
             let previous = payload.previousVersion ?? "Unknown"
             let new = payload.newVersion ?? "Unknown"
-            return "[Prowlarr] Mise a jour : \(previous) -> \(new)"
+            return "[Prowlarr] Application Update : \(previous) -> \(new)"
         case "grab":
             let releaseTitle = payload.release?.releaseTitle ?? "Unknown"
             let source = payload.source ?? "Unknown"
-            return "[Prowlarr] Grab : \(releaseTitle) depuis \(indexer), demande par \(source)"
+            return "[Prowlarr] Grab : \(releaseTitle) from \(indexer), requested by \(source)"
         case "health", "healthissue":
             let issueType = payload.type ?? "Unknown"
             let message = payload.message ?? "No message"
-            return "[Prowlarr] Probleme de sante - \(issueType) : \(message)"
+            return "[Prowlarr] Health Issue - \(issueType) : \(message)"
         case "healthrestored":
             let issueType = payload.type ?? "Unknown"
             let message = payload.message ?? "No message"
-            return "[Prowlarr] Sante restauree - \(issueType) : \(message)"
+            return "[Prowlarr] Health Restored - \(issueType) : \(message)"
         case "indexeradded":
-            return "[Prowlarr] Indexer ajoute : \(indexer)"
+            return "[Prowlarr] Indexer Added : \(indexer)"
         case "indexererror":
             let message = payload.message ?? "No message"
-            return "[Prowlarr] Indexer en erreur : \(indexer) - \(message)"
+            return "[Prowlarr] Indexer Error : \(indexer) - \(message)"
         case "indexerremoved":
-            return "[Prowlarr] Indexer supprime : \(indexer)"
+            return "[Prowlarr] Indexer Removed : \(indexer)"
         case "indexerupdated":
-            return "[Prowlarr] Indexer mis a jour : \(indexer)"
+            return "[Prowlarr] Indexer Updated : \(indexer)"
         case "manualinteractionrequired":
-            return "[Prowlarr] Interaction manuelle requise : \(payload.message ?? "No message")"
+            return "[Prowlarr] Manual Interaction Required : \(payload.message ?? "No message")"
         case "test":
-            return "[Prowlarr] Test message"
+            return "[Prowlarr] Test Message : \(payload.message ?? "No message")"
         default:
             logger.warning("Unknown Prowlarr event type", metadata: ["event_type": "\(eventType)"])
-            return "[Prowlarr] Evenement inconnu : \(eventType)"
+            return "[Prowlarr] Unknown Event : \(eventType)"
         }
     }
 

@@ -76,21 +76,21 @@ public struct SonarrWebhookHandler: WebhookHandlerProtocol {
 
         switch eventType {
         case "episodeadded":
-            return "[Sonarr] Episode ajoute : \(series) S\(season)E\(episode) - \(episodeTitle)"
+            return "[Sonarr] Added Episode : \(series) S\(season)E\(episode) - \(episodeTitle)"
         case "episodedelete":
-            return "[Sonarr] Episode supprime : \(series) S\(season)E\(episode) - \(episodeTitle)"
+            return "[Sonarr] Deleted Episode : \(series) S\(season)E\(episode) - \(episodeTitle)"
         case "episodedeletedforupgrade":
             let file = payload.episodeFile?.relativePath ?? "Unknown"
-            return "[Sonarr] Episode supprime pour upgrade : \(episodeTitle) - \(file)"
+            return "[Sonarr] Deleted Episode for Upgrade : \(episodeTitle) - \(file)"
         case "episodefiledelete":
             let file = payload.episodeFile?.relativePath ?? "Unknown"
             return
-                "[Sonarr] Fichier episode supprime : \(series) S\(season)E\(episode) - \(episodeTitle) - \(file)"
+                "[Sonarr] Deleted Episode File : \(series) S\(season)E\(episode) - \(episodeTitle) - \(file)"
         case "episodeimported":
-            return "[Sonarr] Episode importe : \(series) S\(season)E\(episode) - \(episodeTitle)"
+            return "[Sonarr] Imported Episode : \(series) S\(season)E\(episode) - \(episodeTitle)"
         case "download":
             let releaseTitle = payload.release?.releaseTitle ?? "Unknown"
-            return "[Sonarr] Episode telecharge : \(series) \(episodeLabel) - \(releaseTitle)"
+            return "[Sonarr] Downloaded Episode : \(series) \(episodeLabel) - \(releaseTitle)"
         case "grab":
             let releaseTitle = payload.release?.releaseTitle ?? "Unknown"
             let quality = payload.release?.quality ?? "Unknown"
@@ -100,29 +100,29 @@ public struct SonarrWebhookHandler: WebhookHandlerProtocol {
         case "health":
             let issueType = payload.type ?? "Unknown"
             let message = payload.message ?? "No message"
-            return "[Sonarr] Probleme de sante - \(issueType) : \(message)"
+            return "[Sonarr] Health Issue - \(issueType) : \(message)"
         case "healthrestored":
             let issueType = payload.type ?? "Unknown"
             let message = payload.message ?? "No message"
-            return "[Sonarr] Sante restauree - \(issueType) : \(message)"
+            return "[Sonarr] Health Restored - \(issueType) : \(message)"
         case "manualinteractionrequired":
-            return "[Sonarr] Interaction manuelle requise : \(payload.message ?? "No message")"
+            return "[Sonarr] Manual Interaction Required : \(payload.message ?? "No message")"
         case "applicationupdate":
             let previous = payload.previousVersion ?? "Unknown"
             let new = payload.newVersion ?? "Unknown"
-            return "[Sonarr] Mise a jour : \(previous) -> \(new)"
+            return "[Sonarr] Application Update : \(previous) -> \(new)"
         case "seriesdelete":
-            return "[Sonarr] Serie supprimee : \(series)"
+            return "[Sonarr] Series Deleted : \(series)"
         case "rename":
             return
-                "[Sonarr] Renomme : \(payload.oldPath ?? "Unknown") -> \(payload.newPath ?? "Unknown")"
+                "[Sonarr] Renamed : \(payload.oldPath ?? "Unknown") -> \(payload.newPath ?? "Unknown")"
         case "upgraded":
-            return "[Sonarr] Episode upgrade : \(episodeTitle)"
+            return "[Sonarr] Episode Upgraded : \(episodeTitle)"
         case "test":
-            return "[Sonarr] Test message"
+            return "[Sonarr] Test Message : \(payload.message ?? "No message")"
         default:
             logger.warning("Unknown Sonarr event type", metadata: ["event_type": "\(eventType)"])
-            return "[Sonarr] Evenement inconnu : \(eventType)"
+            return "[Sonarr] Unknown Event : \(eventType)"
         }
     }
 

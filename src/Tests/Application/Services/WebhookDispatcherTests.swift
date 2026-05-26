@@ -34,3 +34,33 @@ struct WebhookDispatcherTests {
         #expect(messages.first?.text == "[Radarr] synthetic event")
     }
 }
+
+/// Test double that captures all outbound IRC messages.
+actor MockIRCClient: IRCClientProtocol {
+    private var messages: [IRCMessage] = []
+
+    func start() async throws {}
+
+    func send(_ message: IRCMessage) async throws {
+        messages.append(message)
+    }
+
+    func capturedMessages() -> [IRCMessage] {
+        messages
+    }
+}
+
+/// Minimal deterministic webhook handler used by dispatcher-related unit tests.
+struct TestWebhookHandler: WebhookHandlerProtocol {
+    let sourceIdentifier: String = "radarr"
+
+    func handle(payload _: ByteBuffer, headers _: HTTPHeaders) async throws -> WebhookEvent {
+        WebhookEvent(
+            source: "radarr",
+            eventType: "download",
+            summary: "[Radarr] synthetic event",
+            metadata: [:],
+            receivedAt: .init()
+        )
+    }
+}

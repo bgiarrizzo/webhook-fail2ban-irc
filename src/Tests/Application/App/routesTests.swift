@@ -5,6 +5,27 @@ import VaporTesting
 
 @Suite("Webhook route integration tests")
 struct WebhookRouteTests {
+    @Test("Serves root health route")
+    func servesRootRoute() async throws {
+        let mockClient = MockIRCClient()
+
+        try await withApp(configure: { app in
+            try await configure(
+                app,
+                ircClientOverride: mockClient,
+                configurationOverride: integrationTestConfiguration()
+            )
+        }) { app in
+            try await app.testing().test(
+                .GET, "",
+                afterResponse: { response async in
+                    #expect(response.status == .ok)
+                    #expect(response.body.string == "webhook-irc-relay")
+                }
+            )
+        }
+    }
+
     @Test("Serves OpenAPI specification")
     func servesOpenAPISpecification() async throws {
         let mockClient = MockIRCClient()

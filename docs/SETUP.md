@@ -147,6 +147,9 @@ swift test
 | `webhooks2ircTests` | Swift Testing and VaporTesting | Routes, handlers, dispatcher, router, and shared logging behavior |
 
 Integration tests use app configuration overrides and mocks to avoid real IRC server dependencies during normal test runs.
+Network adapter tests include IRC inbound line framing behavior and IRC client unreachable-server failure paths.
+Shared extension tests include JSON decoder ISO8601 configuration and IRC string sanitization behavior.
+The test folder mirrors `src/Code` in a 1:1 layered layout to simplify traceability from production files to test files.
 
 ---
 

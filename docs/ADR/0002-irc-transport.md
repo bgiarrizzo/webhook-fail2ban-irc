@@ -1,19 +1,41 @@
-# ADR 0002 - Direct IRC TCP Transport
+---
+title: "ADR 0002 - Direct IRC TCP Transport"
+filename: "0002-irc-transport.md"
+description: "Decision to implement IRC transport directly with SwiftNIO over TCP."
+creation_date: 2026-05-15
+update_date: 2026-05-26
+category: adr
+status: Accepted
+---
 
-- Status: Accepted
-- Date: 2026-05-15
+# 0002 - Direct IRC TCP Transport
+
+- **Status:** Accepted
+- **Date:** 2026-05-15
 
 ## Context
-The project requires IRC relay capabilities while avoiding new third-party dependencies unless explicitly justified.
+
+The relay requires IRC delivery while keeping dependency footprint low and avoiding unnecessary external libraries.
 
 ## Decision
-Implement IRC transport directly with SwiftNIO over TCP, including handshake (PASS/NICK/USER), channel join, PRIVMSG sending, and reconnect behavior.
+
+We decided to implement IRC transport directly with SwiftNIO over TCP, including handshake commands (`PASS`, `NICK`, `USER`), channel joins, `PRIVMSG` delivery, reconnect handling, and message buffering behavior.
 
 ## Consequences
-### Advantages
-- No additional third-party library required.
-- Full control over connection lifecycle and retries.
-- Easier long-term maintenance under project constraints.
 
-### Drawbacks
-- More internal code to maintain for protocol handling.
+### Advantages
+
+- No additional third-party IRC client dependency.
+- Full control over connection lifecycle and operational behavior.
+- Predictable adaptation for project-specific IRC requirements.
+
+### Drawbacks / Risks
+
+- Protocol handling logic must be maintained internally.
+- Future IRC edge-case support may require additional implementation effort.
+
+## Alternatives Considered
+
+| Alternative | Reason Rejected |
+|-------------|-----------------|
+| Third-party IRC client library | Adds dependency and reduces control over lifecycle, retries, and logging strategy. |

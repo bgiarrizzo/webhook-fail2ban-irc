@@ -19,7 +19,7 @@ struct RadarrWebhookHandlerTests {
         #expect(event.eventType == "movieadded")
         #expect(
             event.summary
-                == "[Radarr] Film ajoute : Dune (2021) - https://www.themoviedb.org/movie/438631"
+                == "[Radarr] Added Movie : Dune (2021) - https://www.themoviedb.org/movie/438631"
         )
     }
 }

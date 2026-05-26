@@ -16,6 +16,6 @@ struct Fail2banWebhookHandlerTests {
 
         #expect(event.source == "fail2ban")
         #expect(event.eventType == "ban")
-        #expect(event.summary == "[Fail2ban] IP bannie : 203.0.113.10 (jail: sshd)")
+        #expect(event.summary == "[Fail2ban] > unknown [BAN] - [Jail : sshd] => IP: `203.0.113.10` (https://db-ip.com/203.0.113.10) for 0 hours after **0** failure(s).")
     }
 }

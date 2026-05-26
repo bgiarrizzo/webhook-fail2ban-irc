@@ -19,7 +19,7 @@ struct SonarrWebhookHandlerTests {
         #expect(event.eventType == "download")
         #expect(
             event.summary
-                == "[Sonarr] Episode telecharge : Severance S01E02 - Severance.S01E02.1080p"
+                == "[Sonarr] Downloaded Episode : Severance S01E02 - Severance.S01E02.1080p"
         )
     }
 }

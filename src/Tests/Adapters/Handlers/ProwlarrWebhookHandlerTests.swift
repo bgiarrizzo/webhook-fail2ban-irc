@@ -17,6 +17,6 @@ struct ProwlarrWebhookHandlerTests {
 
         #expect(event.source == "prowlarr")
         #expect(event.eventType == "healthissue")
-        #expect(event.summary == "[Prowlarr] Probleme de sante - IndexerError : timeout")
+        #expect(event.summary == "[Prowlarr] Health Issue - IndexerError : timeout")
     }
 }

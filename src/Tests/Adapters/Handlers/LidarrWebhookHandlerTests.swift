@@ -17,6 +17,6 @@ struct LidarrWebhookHandlerTests {
 
         #expect(event.source == "lidarr")
         #expect(event.eventType == "albumadded")
-        #expect(event.summary == "[Lidarr] Album ajoute : Daft Punk - Discovery")
+        #expect(event.summary == "[Lidarr] Added Album : Daft Punk - Discovery")
     }
 }

@@ -30,7 +30,7 @@ let package = Package(
                 .product(name: "SwiftSentry", package: "swift-sentry"),
                 .product(name: "JSONLogger", package: "json-logger"),
             ],
-            path: "Code",
+            path: "src/Code",
             swiftSettings: swiftSettings
         ),
         .testTarget(
@@ -39,7 +39,7 @@ let package = Package(
                 .target(name: "webhooks2irc"),
                 .product(name: "VaporTesting", package: "vapor"),
             ],
-            path: "Tests",
+            path: "src/Tests",
             swiftSettings: swiftSettings
         ),
     ]
